@@ -80,10 +80,10 @@ export function cctvProxy({ sourceRoot = process.cwd() } = {}) {
 
   /**
    * Fetch a Google Street View static image as a fallback frame. Server-side
-   * call, never reaches the browser — prefers GOOGLE_MAPS_SERVER_API_KEY
-   * (#33: a key scoped to Street View Static/Places, restricted by server IP
-   * rather than HTTP referrer) and falls back to the browser-exposed
-   * GOOGLE_MAPS_API_KEY for setups that haven't split the two yet.
+   * call, never reaches the browser — uses GOOGLE_MAPS_SERVER_API_KEY (#33: a
+   * key scoped to Street View Static/Places, restricted by server IP rather
+   * than HTTP referrer). This fallback is OFF unless that key is set; the
+   * browser-exposed GOOGLE_MAPS_API_KEY is never reused server-side.
    */
   const streetViewFallback = async ({ lat, lon, heading, fov, pitch }) => {
     const streetViewKey = googleServerApiKey();
