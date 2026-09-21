@@ -80,3 +80,39 @@ export function flyToAustin(viewer) {
     if (!viewer.isDestroyed()) viewer.camera.cancelFlight();
   };
 }
+
+/**
+ * MilitarySpend fork startup flight: open on the Strait of Hormuz.
+ * Regional altitude — the Gulf, Iran's southern coast, Oman, and the UAE all
+ * in frame so live vessels and aircraft read at a glance.
+ * @returns {Function} Cancels the pending or active startup flight.
+ */
+export function flyToHormuz(viewer) {
+  viewer.camera.setView({
+    destination: Cesium.Cartesian3.fromDegrees(56.27, 26.57, 6_000_000),
+    orientation: {
+      heading: Cesium.Math.toRadians(0),
+      pitch: Cesium.Math.toRadians(-90),
+      roll: 0.0,
+    },
+  });
+
+  const timer = setTimeout(() => {
+    if (viewer.isDestroyed()) return;
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(56.27, 26.57, 900_000),
+      orientation: {
+        heading: Cesium.Math.toRadians(0),
+        pitch: Cesium.Math.toRadians(-55),
+        roll: 0.0,
+      },
+      duration: 4.0,
+      easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT,
+    });
+  }, 500);
+
+  return () => {
+    clearTimeout(timer);
+    if (!viewer.isDestroyed()) viewer.camera.cancelFlight();
+  };
+}

@@ -1,3 +1,15 @@
+# God's Eye View — MilitarySpend fork
+
+Fork of [**God's Eye View** by Bilawal Sidhu](https://github.com/bilawalsidhu/gods-eye-view) (MIT, © 2026 Bilawal Sidhu —
+all credit for the app goes to the original author). This fork serves `globe.militaryspend.org`, embedded at
+[militaryspend.org/globe](https://militaryspend.org/globe).
+
+Fork changes: voice/OpenAI disconnected · embeddable only from `militaryspend.org` (`frame-ancestors`) ·
+`GEV_ALLOWED_HOSTS` · Strait of Hormuz startup camera · branding. Pull upstream with
+`git fetch upstream && git merge upstream/main`. Deploy: `./deploy.sh` on the VPS.
+
+---
+
 <div align="center">
 
 # 🌐 God's Eye View

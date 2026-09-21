@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>God's Eye View</title>
+  <title>God's Eye View — MilitarySpend</title>
   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <link rel="stylesheet" href="/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -34,6 +34,19 @@
 
   <!-- gev:template hud-loading -->
 
+  <!-- MilitarySpend fork chrome. Hidden inside the militaryspend.org iframe;
+       shown on a direct visit so people find the front door. -->
+  <a id="ms-return" href="https://militaryspend.org/globe" hidden
+     style="position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:400;padding:6px 12px;background:rgba(0,0,0,.72);color:#fff;font:600 12px/1.2 system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.18)">
+    God's Eye View — open on militaryspend.org/globe
+  </a>
+  <a id="ms-credit" href="https://github.com/bilawalsidhu/gods-eye-view" target="_blank" rel="noopener"
+     style="position:fixed;bottom:8px;left:10px;z-index:400;color:rgba(255,255,255,.55);font:11px/1.2 system-ui,sans-serif;text-decoration:none">
+    God's Eye View by Bilawal Sidhu (MIT)
+  </a>
+  <script>
+    if (window.top === window.self) document.getElementById('ms-return').hidden = false;
+  </script>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
