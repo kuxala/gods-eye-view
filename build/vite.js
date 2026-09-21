@@ -18,10 +18,13 @@ export function createBrowserViteConfig({
       ? true
       : ['localhost', '127.0.0.1', '.local', ...allowedHosts];
   // MilitarySpend fork: the app is embedded by militaryspend.org/globe and
-  // nowhere else. Only CSP is sent — X-Frame-Options cannot express an
-  // allow-list and would override frame-ancestors in older engines.
+  // nowhere else. localhost:5173 is the militaryspend.org dev server, allowed
+  // so the /globe page can be tested locally. Only CSP is sent —
+  // X-Frame-Options cannot express an allow-list and would override
+  // frame-ancestors in older engines.
   const headers = {
-    'Content-Security-Policy': 'frame-ancestors https://militaryspend.org',
+    'Content-Security-Policy':
+      'frame-ancestors https://militaryspend.org http://localhost:5173',
   };
   const listen = {
     host: resolvedHost,

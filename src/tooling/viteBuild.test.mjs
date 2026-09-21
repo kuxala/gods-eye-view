@@ -25,7 +25,7 @@ test('explicit build inputs preserve browser-only defines, plugin order and loop
   assert.equal(config.server.headers['X-Frame-Options'], undefined);
   assert.equal(
     config.server.headers['Content-Security-Policy'],
-    'frame-ancestors https://militaryspend.org',
+    'frame-ancestors https://militaryspend.org http://localhost:5173',
   );
   assert.deepEqual(config.define, {
     'import.meta.env.GOOGLE_MAPS_API_KEY': '"browser-fixture"',

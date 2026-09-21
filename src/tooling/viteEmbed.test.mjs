@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createBrowserViteConfig } from '../../build/vite.js';
 
-const EMBED_CSP = 'frame-ancestors https://militaryspend.org';
+const EMBED_CSP =
+  'frame-ancestors https://militaryspend.org http://localhost:5173';
 
 test('serve and preview both allow embedding from militaryspend.org only', () => {
   const cfg = createBrowserViteConfig({});
