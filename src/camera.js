@@ -99,11 +99,17 @@ export function flyToHormuz(viewer) {
 
   const timer = setTimeout(() => {
     if (viewer.isDestroyed()) return;
+    // `destination` is the camera's POSITION, not the point it looks at.
+    // Looking north at a downward pitch from a position directly above the
+    // strait would centre the view well north of it. Instead we place the
+    // camera south of the strait, at 22.4°N — the ground offset from a
+    // pitch of -60° at 800 km altitude is ~800km / tan(60°) ≈ 462 km
+    // ≈ 4.15° latitude north, landing the view centre back on 26.57°N.
     viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(56.27, 26.57, 900_000),
+      destination: Cesium.Cartesian3.fromDegrees(56.27, 22.4, 800_000),
       orientation: {
         heading: Cesium.Math.toRadians(0),
-        pitch: Cesium.Math.toRadians(-55),
+        pitch: Cesium.Math.toRadians(-60),
         roll: 0.0,
       },
       duration: 4.0,

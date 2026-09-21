@@ -14,6 +14,10 @@ test('flyToHormuz is exported from camera.js with Hormuz coordinates', () => {
   assert.match(camera, /export function flyToHormuz\(viewer\)/);
   // 56.27°E 26.57°N — the strait itself, between Oman and Iran.
   assert.match(camera, /fromDegrees\(56\.27, 26\.57,/);
+  // destination is the camera POSITION, not the view target — the fly-to
+  // must sit south of the strait so the pitched-down view centres on it.
+  assert.match(camera, /fromDegrees\(56\.27, 22\.4, 800_000\)/);
+  assert.match(camera, /toRadians\(-60\)/);
 });
 
 test('index.html is branded and credits upstream', () => {
