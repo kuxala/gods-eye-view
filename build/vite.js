@@ -9,26 +9,37 @@ export function createBrowserViteConfig({
   cesiumToken,
   host = 'localhost',
   port = 4173,
+  allowedHosts = [],
 } = {}) {
+  const resolvedHost = host || 'localhost';
+  const resolvedPort = parseInt(port, 10) || 4173;
+  const resolvedAllowedHosts =
+    resolvedHost === '0.0.0.0' || resolvedHost === '::'
+      ? true
+      : ['localhost', '127.0.0.1', '.local', ...allowedHosts];
+  // MilitarySpend fork: the app is embedded by militaryspend.org/globe and
+  // nowhere else. Only CSP is sent — X-Frame-Options cannot express an
+  // allow-list and would override frame-ancestors in older engines.
+  const headers = {
+    'Content-Security-Policy': 'frame-ancestors https://militaryspend.org',
+  };
+  const listen = {
+    host: resolvedHost,
+    port: resolvedPort,
+    allowedHosts: resolvedAllowedHosts,
+    headers,
+  };
   return {
     plugins: [cesium(), applicationHtmlPlugin(), ...plugins],
     ...(publicDir === undefined ? {} : { publicDir }),
     server: {
-      host: host || 'localhost',
-      port: parseInt(port, 10) || 4173,
-      allowedHosts:
-        host === '0.0.0.0' || host === '::'
-          ? true
-          : ['localhost', '127.0.0.1', '.local'],
+      ...listen,
       fs: {
         deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', '**/ENVIRONMENT'],
       },
-      // These headers protect the document containing Provider Settings.
-      headers: {
-        'X-Frame-Options': 'DENY',
-        'Content-Security-Policy': "frame-ancestors 'none'",
-      },
     },
+    // Production runs `vite preview` under pm2; keep it identical to serve.
+    preview: { ...listen },
     define: {
       'import.meta.env.GOOGLE_MAPS_API_KEY': JSON.stringify(googleApiKey),
       'import.meta.env.CESIUM_ION_TOKEN': JSON.stringify(cesiumToken),
