@@ -43,7 +43,6 @@ function localProviderPlugins() {
     adsbLolProxy(),
     aisLiveProxy(),
     trackBackfillProxies(),
-    openAiRealtimeProxy(),
     googlePlacesContextProxy(),
     keySetupEndpoint(),
   ];
