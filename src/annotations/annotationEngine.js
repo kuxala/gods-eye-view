@@ -29,7 +29,7 @@ if (typeof window !== 'undefined' && !window.__CESIUM__)
  */
 
 let _seq = 0;
-const COLORS = new Set(['primary', 'amber', '#ec1313', 'green', 'red']);
+const COLORS = new Set(['primary', 'amber', 'cyan', 'green', 'red']);
 // Entity FACTS the voice model may attach to an annotation (annotate_map.entityKind) —
 // what kind of thing the target IS, routing the resolver (e.g. point_feature keeps a
 // monument point-first). Unknown values are dropped, never guessed.
@@ -1127,7 +1127,7 @@ export function createAnnotationEngine({
             type: 'pin',
             target: 'Letterman Digital Arts Center, San Francisco',
             label: 'ILM / Lucasfilm',
-            color: '#ec1313',
+            color: 'cyan',
           },
           {
             type: 'arrow',
@@ -1177,7 +1177,7 @@ export function createAnnotationEngine({
             target: 'Palace of Fine Arts, San Francisco',
             toTarget: 'Marina Green, San Francisco',
             label: 'next to the Marina',
-            color: '#ec1313',
+            color: 'cyan',
           },
         ],
         { persist: true },

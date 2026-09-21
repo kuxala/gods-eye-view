@@ -33,7 +33,7 @@ export function createProjection({
       priority: Number.MAX_SAFE_INTEGER - 1,
       title: String(name || cameraId || 'CAMERA'),
       details: [],
-      accent: '#6be8ff',
+      accent: '#c2b0a8',
       interactive: false,
       gapPx: 6,
       verticalOnly: true,

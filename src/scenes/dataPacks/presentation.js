@@ -5,9 +5,9 @@ function caption(viewer, pack) {
   const card = document.createElement('section');
   card.dataset.directorPack = pack.id;
   Object.assign(card.style, {
-    color: '#e3faff',
-    background: '#08141eed',
-    border: '1px solid #2491a8',
+    color: '#f4f0ee',
+    background: '#1e0808ed',
+    border: '1px solid #a82424',
     padding: '8px',
     margin: '4px',
     maxWidth: '260px',
@@ -22,7 +22,7 @@ function caption(viewer, pack) {
     link.href = pack.attribution.url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    link.style.color = '#6eeaff';
+    link.style.color = '#c4b1a9';
     card.append(link);
   }
   return card;

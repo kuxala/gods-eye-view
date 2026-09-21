@@ -181,8 +181,8 @@ export function createFrames({ state: layerState, services, parts, source }) {
     const h = PROJECTION_CANVAS_HEIGHT;
     ctx.clearRect(0, 0, w, h);
     const g = ctx.createLinearGradient(0, 0, w, h);
-    g.addColorStop(0, '#05111a');
-    g.addColorStop(1, '#01070c');
+    g.addColorStop(0, '#1a0505');
+    g.addColorStop(1, '#0c0101');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
 
@@ -192,15 +192,15 @@ export function createFrames({ state: layerState, services, parts, source }) {
       health?.message || health?.status || camera?.feedType || 'NO FEED',
     ).toUpperCase();
 
-    ctx.strokeStyle = 'rgba(0, 220, 255, 0.24)';
+    ctx.strokeStyle = 'rgba(255, 0, 0, 0.24)';
     ctx.lineWidth = 2;
     ctx.strokeRect(18, 18, w - 36, h - 36);
     ctx.strokeRect(36, 36, w - 72, h - 72);
 
-    ctx.fillStyle = 'rgba(170, 242, 255, 0.95)';
+    ctx.fillStyle = 'rgba(220, 209, 205, 0.95)';
     ctx.font = '600 32px "JetBrains Mono", monospace';
     ctx.fillText(label.slice(0, 42), 46, 74);
-    ctx.fillStyle = 'rgba(127, 216, 231, 0.8)';
+    ctx.fillStyle = 'rgba(193, 174, 165, 0.8)';
     ctx.font = '500 24px "JetBrains Mono", monospace';
     ctx.fillText(city.toUpperCase(), 46, 112);
     ctx.font = '500 21px "JetBrains Mono", monospace';

@@ -222,12 +222,8 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background:
-    radial-gradient(
-      circle at 20% 20%,
-      rgba(0, 244, 255, 0.09),
-      transparent 44%
-    ),
-    linear-gradient(180deg, rgba(8, 14, 19, 0.88), rgba(4, 7, 11, 0.96));
+    radial-gradient(circle at 20% 20%, rgba(255, 0, 0, 0.09), transparent 44%),
+    linear-gradient(180deg, rgba(16, 13, 11, 0.88), rgba(9, 7, 6, 0.96));
   min-height: 150px;
   /* .cctv-panel-inner is a scrolling column flex container, so the default
      flex-shrink:1 squeezed this wrap down to its 150px floor while the 16:9
@@ -245,7 +241,7 @@
     100deg,
     transparent 24%,
     rgba(236, 19, 19, 0.08) 44%,
-    rgba(170, 244, 255, 0.14) 50%,
+    rgba(220, 209, 205, 0.14) 50%,
     rgba(236, 19, 19, 0.08) 56%,
     transparent 76%
   );
@@ -271,7 +267,7 @@
   font-family: var(--font-mono);
   font-size: 8px;
   letter-spacing: 2.2px;
-  color: rgba(145, 237, 255, 0.62);
+  color: rgba(210, 196, 190, 0.62);
   pointer-events: none;
 }
 

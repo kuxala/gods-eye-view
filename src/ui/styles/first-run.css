@@ -19,9 +19,9 @@
   overflow: hidden;
   color: var(--text-primary);
   background:
-    linear-gradient(145deg, rgba(10, 27, 37, 0.97), rgba(7, 13, 22, 0.95)),
-    rgba(7, 17, 25, 0.96);
-  border: 1px solid rgba(54, 220, 255, 0.42);
+    linear-gradient(145deg, rgba(37, 10, 10, 0.97), rgba(17, 13, 12, 0.95)),
+    rgba(25, 7, 7, 0.96);
+  border: 1px solid rgba(255, 54, 54, 0.42);
   border-radius: 0.65rem;
   box-shadow:
     0 1.4rem 4.5rem rgba(0, 0, 0, 0.72),
@@ -60,10 +60,10 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(54, 220, 255, 0.8),
+    rgba(255, 54, 54, 0.8),
     transparent
   );
-  box-shadow: 0 0 1rem rgba(54, 220, 255, 0.45);
+  box-shadow: 0 0 1rem rgba(255, 54, 54, 0.45);
   pointer-events: none;
 }
 
@@ -73,7 +73,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  color: rgba(171, 210, 220, 0.6);
+  color: rgba(206, 191, 185, 0.6);
   font-family: var(--font-mono);
   font-size: 0.58rem;
   letter-spacing: 0.1rem;
@@ -81,7 +81,7 @@
 }
 
 .first-run-kicker {
-  color: rgba(54, 220, 255, 0.86);
+  color: rgba(255, 54, 54, 0.86);
 }
 
 #first-run-launcher h2 {
@@ -95,7 +95,7 @@
 #first-run-description {
   max-width: 29rem;
   margin-top: 0.3rem;
-  color: rgba(215, 231, 235, 0.66);
+  color: rgba(230, 223, 220, 0.66);
   font-size: 0.78rem;
   line-height: 1.5;
 }
@@ -112,7 +112,7 @@
   scroll-behavior: smooth;
   /* A visible, non-overlaying affordance that the list continues. */
   scrollbar-width: thin;
-  scrollbar-color: rgba(54, 220, 255, 0.45) transparent;
+  scrollbar-color: rgba(255, 54, 54, 0.45) transparent;
   scrollbar-gutter: stable;
 }
 
@@ -120,7 +120,7 @@
   width: 6px;
 }
 .first-run-choices::-webkit-scrollbar-thumb {
-  background: rgba(54, 220, 255, 0.45);
+  background: rgba(255, 54, 54, 0.45);
   border-radius: 3px;
 }
 
@@ -132,10 +132,10 @@
   width: 100%;
   min-height: 3.55rem;
   padding: 0.6rem 0.7rem;
-  color: rgba(225, 244, 248, 0.92);
+  color: rgba(240, 235, 233, 0.92);
   text-align: left;
-  background: rgba(29, 69, 81, 0.18);
-  border: 1px solid rgba(100, 200, 220, 0.18);
+  background: rgba(65, 51, 45, 0.18);
+  border: 1px solid rgba(177, 153, 143, 0.18);
   border-radius: 0.42rem;
   cursor: pointer;
   transition:
@@ -146,8 +146,8 @@
 
 .first-run-choices button:hover,
 .first-run-choices button:focus-visible {
-  background: rgba(25, 151, 178, 0.16);
-  border-color: rgba(54, 220, 255, 0.62);
+  background: rgba(178, 25, 25, 0.16);
+  border-color: rgba(255, 54, 54, 0.62);
   outline: none;
   transform: translateX(2px);
 }
@@ -180,12 +180,12 @@
 }
 
 .first-run-choices small {
-  color: rgba(198, 220, 226, 0.55);
+  color: rgba(220, 209, 204, 0.55);
   font-size: 0.66rem;
 }
 
 .first-run-arrow {
-  color: rgba(54, 220, 255, 0.4);
+  color: rgba(255, 54, 54, 0.4);
   font-size: 1rem;
   transition:
     transform var(--transition-fast),
@@ -194,7 +194,7 @@
 
 .first-run-choices button:hover .first-run-arrow,
 .first-run-choices button:focus-visible .first-run-arrow {
-  color: rgba(54, 220, 255, 0.9);
+  color: rgba(255, 54, 54, 0.9);
   transform: translateX(2px);
 }
 
@@ -213,7 +213,7 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: rgba(199, 225, 231, 0.66);
+  color: rgba(222, 212, 208, 0.66);
   text-transform: none;
   font-size: 0.62rem;
   letter-spacing: 0.02rem;
@@ -229,7 +229,7 @@
 }
 
 .first-run-suppress:hover {
-  color: rgba(225, 244, 248, 0.92);
+  color: rgba(240, 235, 233, 0.92);
 }
 
 /* The live region carries mission progress and failures, so it owns a full row
@@ -237,14 +237,14 @@
 .first-run-note {
   min-height: 1.1rem;
   margin-top: 0.5rem;
-  color: rgba(199, 225, 231, 0.62);
+  color: rgba(222, 212, 208, 0.62);
   font-family: var(--font-mono);
   font-size: 0.62rem;
   line-height: 1.35;
 }
 
 #first-run-launcher[data-state='loading'] .first-run-note {
-  color: rgba(54, 220, 255, 0.85);
+  color: rgba(255, 54, 54, 0.85);
 }
 
 /* Every surface that claims the screen hides the launcher. This list is the CSS

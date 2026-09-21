@@ -23,7 +23,7 @@ import * as Cesium from 'cesium';
  */
 
 const PALETTE = {
-  primary: '#8be9ff',
+  primary: '#cfc1bb',
   amber: '#ffb547',
   cyan: '#39d0ff',
   green: '#5dff9f',
@@ -319,7 +319,7 @@ export function createWorldAnnotationRenderer(viewer) {
       showBackground: true,
       backgroundColor: new Cesium.CallbackProperty(
         () =>
-          Cesium.Color.fromCssColorString('#0b1622').withAlpha(
+          Cesium.Color.fromCssColorString('#1b1512').withAlpha(
             0.72 * (anno.alpha ?? 1),
           ),
         false,

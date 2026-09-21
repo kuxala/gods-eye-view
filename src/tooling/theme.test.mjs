@@ -43,11 +43,67 @@ test('no upstream cyan remains in UI stylesheets', () => {
 });
 
 test('no upstream cyan remains in JS layer/annotation call sites', () => {
-  const cyan = /Color\.CYAN|#22e6e6|#00ffff|'cyan'/;
+  const cyan = /Color\.CYAN|#22e6e6|#00ffff/;
   const excluded = path.join('src', 'voice', 'actionSchemas.js');
   const jsFiles = listJsFiles(path.join(rootPath, 'src'))
     .map((p) => path.relative(rootPath, p))
     .filter((p) => p !== excluded);
   const offenders = jsFiles.filter((p) => cyan.test(readFileSync(path.join(rootPath, p), 'utf8')));
+  assert.deepEqual(offenders, []);
+});
+
+// Hue-based check: no colour token in the UI stylesheets may still sit in the
+// cyan→blue band (hue 165°–265°, saturation ≥ 0.12), whatever its syntax
+// (#rgb, #rrggbb, #rrggbbaa, rgb()/rgba() comma or space form, gradients).
+// Mirrors the warmify() pass in scripts/apply-militaryspend-theme.mjs.
+const COLOR_TOKEN_RE =
+  /#([0-9a-fA-F]{3,8})\b|\brgba?\(\s*(\d{1,3})\s*,?\s*(\d{1,3})\s*,?\s*(\d{1,3})(?:\s*[,/]\s*[\d.]+%?)?\s*\)/g;
+
+function tokenToRgb(match) {
+  if (match[1] !== undefined) {
+    const digits = match[1];
+    if (![3, 4, 6, 8].includes(digits.length)) return null;
+    const full =
+      digits.length <= 4
+        ? digits
+            .split('')
+            .map((c) => c + c)
+            .join('')
+        : digits;
+    return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
+  }
+  return [match[2], match[3], match[4]].map(Number);
+}
+
+function hueSaturation([r, g, b]) {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  if (max === min) return { h: 0, s: 0 };
+  const d = max - min;
+  const l = (max + min) / 2;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h;
+  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+  else if (max === g) h = ((b - r) / d + 2) / 6;
+  else h = ((r - g) / d + 4) / 6;
+  return { h: h * 360, s };
+}
+
+function blueHuedTokens(css) {
+  const out = [];
+  for (const match of css.matchAll(COLOR_TOKEN_RE)) {
+    const rgb = tokenToRgb(match);
+    if (!rgb || rgb.some((v) => v > 255)) continue;
+    const { h, s } = hueSaturation(rgb);
+    if (s >= 0.12 && h >= 165 && h <= 265) out.push(match[0]);
+  }
+  return out;
+}
+
+test('no blue/cyan-hued colour tokens remain in UI stylesheets', () => {
+  const offenders = cssFiles.flatMap((p) => blueHuedTokens(read(p)).map((t) => `${p}: ${t}`));
   assert.deepEqual(offenders, []);
 });

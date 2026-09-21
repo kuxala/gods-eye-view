@@ -27,7 +27,7 @@ import {
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 const PALETTE = {
-  primary: '#8be9ff',
+  primary: '#cfc1bb',
   amber: '#ffb547',
   cyan: '#39d0ff',
   green: '#5dff9f',
@@ -196,7 +196,7 @@ export function createScreenAnnotationRenderer(
         const dot = svgEl('circle', {
           class: 'gev-anno-dot',
           fill: c,
-          stroke: '#06121c',
+          stroke: '#1c0606',
           'stroke-width': '2',
           r: '4',
         });
@@ -230,7 +230,7 @@ export function createScreenAnnotationRenderer(
       parts.dot = svgEl('circle', {
         class: 'gev-anno-dot',
         fill: c,
-        stroke: '#06121c',
+        stroke: '#1c0606',
         'stroke-width': '2',
         r: anno.type === 'label' ? '4' : '5',
       });
@@ -839,8 +839,8 @@ function injectStyles() {
   .gev-anno-area { filter: drop-shadow(0 0 5px currentColor); }
   .gev-anno-arrow { filter: drop-shadow(0 0 4px currentColor); stroke-linecap: round; }
   .gev-anno-leader { stroke-dasharray: 2 3; }
-  .gev-anno-card { fill: rgba(8,18,28,0.78); stroke: rgba(255,255,255,0.14); stroke-width: 1; }
-  .gev-anno-text { fill: #eaf6ff; font: 600 13px "JetBrains Mono", ui-monospace, monospace; letter-spacing: 0.02em; }
+  .gev-anno-card { fill: rgba(28,8,8,0.78); stroke: rgba(255,255,255,0.14); stroke-width: 1; }
+  .gev-anno-text { fill: #f6f4f3; font: 600 13px "JetBrains Mono", ui-monospace, monospace; letter-spacing: 0.02em; }
   /* draw-on: outlined shapes reveal their stroke */
   .gev-draw { stroke-dasharray: 1400; stroke-dashoffset: 1400; }
   .gev-anno.gev-in .gev-draw { transition: stroke-dashoffset 900ms ease-out; stroke-dashoffset: 0; }

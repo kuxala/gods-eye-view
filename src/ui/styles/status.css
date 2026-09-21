@@ -92,10 +92,10 @@
   padding: 6px 10px;
   border-radius: 7px;
   border: 1px solid rgba(236, 19, 19, 0.24);
-  background: rgba(3, 10, 18, 0.78);
+  background: rgba(18, 3, 3, 0.78);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  color: rgba(170, 252, 255, 0.92);
+  color: rgba(220, 209, 205, 0.92);
   font-family: var(--font-mono);
   font-size: 8px;
   letter-spacing: 1.35px;
@@ -110,7 +110,7 @@
   display: none;
 }
 #global-loading-label {
-  color: rgba(184, 244, 255, 0.92);
+  color: rgba(226, 217, 213, 0.92);
 }
 #global-loading-detail {
   min-width: 34px;
@@ -186,10 +186,10 @@
   padding: 6px 10px;
   border-radius: 7px;
   border: 1px solid rgba(236, 19, 19, 0.24);
-  background: rgba(3, 10, 18, 0.78);
+  background: rgba(18, 3, 3, 0.78);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  color: rgba(170, 252, 255, 0.92);
+  color: rgba(220, 209, 205, 0.92);
   font-family: var(--font-mono);
   font-size: 8px;
   letter-spacing: 1.35px;
@@ -217,7 +217,7 @@
 
 #traffic-sync-label,
 #cctv-sync-label {
-  color: rgba(184, 244, 255, 0.92);
+  color: rgba(226, 217, 213, 0.92);
 }
 
 #traffic-sync-progress,

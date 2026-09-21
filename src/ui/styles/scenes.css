@@ -96,7 +96,7 @@
 #left-panel-stack > [data-panel-id]:not(.collapsed) .panel-divider {
   background: linear-gradient(
     90deg,
-    rgb(0 212 255 / 28%),
+    rgb(255 0 0 / 28%),
     rgba(236, 19, 19, 0.18) 58%,
     transparent
   );
@@ -106,7 +106,7 @@
 #right-context-rail [data-panel-id]:not(.collapsed) .panel-divider {
   background: linear-gradient(
     90deg,
-    rgb(0 212 255 / 28%),
+    rgb(255 0 0 / 28%),
     rgba(236, 19, 19, 0.18) 58%,
     transparent
   );
@@ -258,7 +258,7 @@
   box-sizing: border-box;
   font: inherit;
   color: var(--text-primary);
-  background: var(--bg-panel, #101820);
+  background: var(--bg-panel, #1c1614);
   border: 1px solid var(--accent, #ec1313);
 }
 
@@ -452,5 +452,5 @@
 }
 
 .director-sharing-dialog::backdrop {
-  background: rgba(0, 8, 14, 0.65);
+  background: rgba(14, 0, 0, 0.65);
 }

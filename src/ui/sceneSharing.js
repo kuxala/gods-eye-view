@@ -5,9 +5,9 @@ export function createSceneDialog(title, onClose) {
   dialog.className = 'director-sharing-dialog';
   dialog.setAttribute('aria-label', title);
   Object.assign(dialog.style, {
-    background: '#08141e',
-    color: '#e3faff',
-    border: '1px solid #397080',
+    background: '#1e0808',
+    color: '#f4f0ee',
+    border: '1px solid #6d564c',
     borderRadius: '6px',
     padding: '20px',
     width: 'min(720px,calc(100vw - 32px))',
@@ -45,9 +45,9 @@ export function createSceneDialog(title, onClose) {
     b.type = 'button';
     b.textContent = label;
     Object.assign(b.style, {
-      background: '#10242e',
-      color: '#e3faff',
-      border: '1px solid #397080',
+      background: '#251d19',
+      color: '#f4f0ee',
+      border: '1px solid #6d564c',
       borderRadius: '3px',
       padding: '7px 11px',
       margin: '6px 6px 6px 0',
@@ -72,9 +72,9 @@ export function createSceneDialog(title, onClose) {
       width: '100%',
       padding: '7px',
       margin: '6px 0 14px',
-      color: '#e3faff',
-      background: '#10242e',
-      border: '1px solid #397080',
+      color: '#f4f0ee',
+      background: '#251d19',
+      border: '1px solid #6d564c',
       font: multiline ? '12px monospace' : 'inherit',
     });
     if (multiline) node.rows = 9;

@@ -116,8 +116,8 @@ const NEARBY_CITIES = Object.freeze([
     placement: 'right-lower',
   }),
 ]);
-const BORDER_COLOR = Cesium.Color.fromCssColorString('#20e7f2');
-const BORDER_ACCENT = '#20e7f2';
+const BORDER_COLOR = Cesium.Color.fromCssColorString('#f22020');
+const BORDER_ACCENT = '#f22020';
 const INCIDENT_ACCENT = '#ffad55';
 const INCIDENT_COLOR = Cesium.Color.fromCssColorString(INCIDENT_ACCENT);
 

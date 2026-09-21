@@ -779,7 +779,7 @@ export function createTracking({
       return;
     flightState._trackedEntity.gevLabelModel = trackedLabelModelFromText(
       _trackedLabelText(icao24),
-      '#39d0ff',
+      '#ff3939',
     );
     refreshTrackedReadout(flightState._trackedEntity);
     // The readout and the context slot describe the same contact — refresh them
@@ -1000,7 +1000,7 @@ export function createTracking({
     flightState._trackedEntity.gevTrackedId = `flights:${icao24}`;
     flightState._trackedEntity.gevLabelModel = trackedLabelModelFromText(
       _trackedLabelText(icao24),
-      '#39d0ff',
+      '#ff3939',
     );
 
     // A billboard has a ~zero bounding sphere, so Cesium's default follow distance is

@@ -183,7 +183,7 @@ export function createRendering({
     if (vesselState.shipIconCache.has(key))
       return vesselState.shipIconCache.get(key);
 
-    const stroke = selected ? 'rgba(6,26,32,0.95)' : 'rgba(4,18,24,0.9)';
+    const stroke = selected ? 'rgba(32,6,6,0.95)' : 'rgba(24,4,4,0.9)';
     const strokeWidth = selected ? 1.1 : 0.7;
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
     <g transform="translate(16,16)">
