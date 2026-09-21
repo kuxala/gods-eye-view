@@ -69,7 +69,7 @@
   letter-spacing: 1.8px;
   color: var(--accent);
   text-transform: uppercase;
-  text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+  text-shadow: 0 0 8px rgba(236, 19, 19, 0.3);
 }
 
 .panel-drag-handle {
@@ -216,8 +216,8 @@
   border-color: var(--accent);
   background: var(--accent-dim);
   box-shadow:
-    0 0 20px rgba(0, 212, 255, 0.15),
-    0 0 0 1px rgba(0, 212, 255, 0.1) inset;
+    0 0 20px rgba(236, 19, 19, 0.15),
+    0 0 0 1px rgba(236, 19, 19, 0.1) inset;
 }
 
 .style-btn.active .btn-icon {
@@ -472,7 +472,7 @@
 .pp-toggle-btn.active {
   border-color: var(--accent);
   background: var(--accent-dim);
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
+  box-shadow: 0 0 12px rgba(236, 19, 19, 0.15);
 }
 
 .pp-icon {
@@ -749,7 +749,7 @@
 
 /* Order matters, and matches `.data-toggle-btn`: hover/focus, then active, then
    disabled — all at the same specificity, so the later rule wins. Hovering the
-   active chip must not wash the cyan out, and a disabled chip must not light up
+   active chip must not wash the #d7c9c1 out, and a disabled chip must not light up
    under the cursor. Do not add `:not(...)` here: it would raise specificity and
    let hover beat `.active` again. */
 .map-stack-chip:hover,
@@ -772,12 +772,12 @@
   color: var(--accent);
   border-color: var(--accent);
   background: var(--accent-dim);
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+  box-shadow: 0 0 10px rgba(236, 19, 19, 0.15);
 }
 
 .map-stack-chip.unavailable,
 .map-stack-chip[aria-disabled='true'] {
-  color: rgba(232, 234, 237, 0.28);
+  color: rgba(241, 233, 228, 0.28);
   border-color: rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
   cursor: not-allowed;
@@ -786,7 +786,7 @@
 .map-stack-chip-req {
   font-size: 7px;
   letter-spacing: 0.3px;
-  color: rgba(232, 234, 237, 0.28);
+  color: rgba(241, 233, 228, 0.28);
 }
 
 .pp-stack-status {
@@ -1087,7 +1087,7 @@ body.ui-clean-view #scene-runtime.active {
   background: linear-gradient(
     90deg,
     rgb(0 212 255 / 28%),
-    rgba(0, 212, 255, 0.18) 58%,
+    rgba(236, 19, 19, 0.18) 58%,
     transparent
   );
 }
