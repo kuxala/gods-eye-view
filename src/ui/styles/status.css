@@ -116,7 +116,7 @@
   min-width: 34px;
   max-width: min(220px, 38vw);
   overflow: hidden;
-  color: #00e1ff;
+  color: #d7c9c1;
   font-weight: 600;
   letter-spacing: 1.6px;
   text-align: right;
@@ -222,7 +222,7 @@
 
 #traffic-sync-progress,
 #cctv-sync-progress {
-  color: #00e1ff;
+  color: #d7c9c1;
   font-weight: 600;
   letter-spacing: 1.6px;
   min-width: 34px;

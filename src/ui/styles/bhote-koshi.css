@@ -240,7 +240,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 2px 8px;
   padding: 7px 9px 8px;
-  border-top: 3px solid #6be8ff;
+  border-top: 3px solid #f1e9e4;
 }
 
 .bhote-embedded-callout footer strong {
@@ -262,7 +262,7 @@
   grid-column: 2;
   grid-row: 1 / span 2;
   align-self: center;
-  color: #6be8ff;
+  color: #f1e9e4;
   font-size: 8px;
   text-decoration: none;
 }

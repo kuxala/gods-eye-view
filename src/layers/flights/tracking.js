@@ -961,7 +961,7 @@ export function createTracking({
           () =>
             parts.rendering._modelOwnsVisual(flightState._trackedIcao)
               ? CYAN_TRANSPARENT
-              : Cesium.Color.CYAN,
+              : Cesium.Color.fromCssColorString('#ec1313'),
           false,
         ),
         sizeInMeters: false,

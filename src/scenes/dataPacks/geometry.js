@@ -17,7 +17,7 @@ export function renderPackGeometry({ asset, pack }, handle) {
         position: xyz(feature.coordinates),
         point: {
           pixelSize: 12,
-          color: Cesium.Color.CYAN,
+          color: Cesium.Color.fromCssColorString('#ec1313'),
           outlineColor: Cesium.Color.BLACK,
           outlineWidth: 2,
         },
@@ -34,7 +34,7 @@ export function renderPackGeometry({ asset, pack }, handle) {
         positions: feature.coordinates.map(xyz),
         width: 4,
         material: Cesium.Material.fromType('Color', {
-          color: Cesium.Color.CYAN,
+          color: Cesium.Color.fromCssColorString('#ec1313'),
         }),
       });
     } else {
@@ -55,7 +55,7 @@ export function renderPackGeometry({ asset, pack }, handle) {
           }),
           attributes: {
             color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-              Cesium.Color.CYAN.withAlpha(0.35),
+              Cesium.Color.fromCssColorString('#ec1313').withAlpha(0.35),
             ),
           },
         }),

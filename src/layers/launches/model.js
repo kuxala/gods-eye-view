@@ -153,7 +153,7 @@ export function createModel({ state: layerState, services, parts, source }) {
     if (/arianespace|esa|european space/.test(identity))
       return Cesium.Color.fromCssColorString('#60a5fa');
     if (launch.provider) return Cesium.Color.fromCssColorString('#c084fc');
-    return Cesium.Color.fromCssColorString('#22e6e6');
+    return Cesium.Color.fromCssColorString('#d7c9c1');
   }
 
   /**

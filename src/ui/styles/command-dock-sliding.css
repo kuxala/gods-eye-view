@@ -392,7 +392,7 @@
 }
 
 #command-dock #gev-voice-control[data-speaker='ai'] .gev-voice-visualizer span {
-  background: linear-gradient(to top, #28b9db, #71eaff);
+  background: linear-gradient(to top, #d7c9c1, #f1e9e4);
   box-shadow: 0 0 0.35rem rgba(54, 220, 255, 0.28);
 }
 

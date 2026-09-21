@@ -31,7 +31,7 @@ export function createLaunchPad({
       fabric: {
         type: 'GevLaunchPadZone',
         uniforms: {
-          color: Cesium.Color.fromCssColorString('#22e6e6'),
+          color: Cesium.Color.fromCssColorString('#d7c9c1'),
           fillAlpha: 0.105,
           rimAlpha: 0.72,
         },

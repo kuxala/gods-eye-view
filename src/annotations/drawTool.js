@@ -52,7 +52,7 @@ import {
 export const DRAW_POINTER_OWNER = 'draw';
 const PREVIEW_DATA_SOURCE_NAME = 'gev-draw-preview';
 
-const COLORS = ['primary', 'amber', 'cyan', 'green', 'red'];
+const COLORS = ['primary', 'amber', '#ec1313', 'green', 'red'];
 const PREVIEW = {
   primary: '#8be9ff',
   amber: '#ffb547',

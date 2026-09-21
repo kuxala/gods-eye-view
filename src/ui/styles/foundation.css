@@ -468,7 +468,7 @@ body:has(.data-toggle-row[data-layer-id='alpr-cameras'] .data-toggle-btn.active)
 }
 
 #gev-voice-control[data-status='listening'] #gev-voice-status {
-  color: #5cffc6;
+  color: #f1e9e4;
 }
 
 #gev-voice-control[data-status='executing'] {

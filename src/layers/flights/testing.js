@@ -175,7 +175,7 @@ export function createTesting({
   function _trackedBillboardColorForTest() {
     return parts.rendering._modelOwnsVisual(flightState._trackedIcao)
       ? CYAN_TRANSPARENT
-      : Cesium.Color.CYAN;
+      : Cesium.Color.fromCssColorString('#ec1313');
   }
 
   /** Drive the exact fleet billboard-to-model handoff used by `_fleetTick`. */

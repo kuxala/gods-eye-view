@@ -70,7 +70,7 @@ export function createSelection({
       priority: Number.MAX_SAFE_INTEGER,
       title,
       details,
-      accent: '#00ffff',
+      accent: '#ec1313',
       interactive: false,
       anchorRadiusPx: 9,
       minAnchorGapPx: 11,
@@ -124,7 +124,7 @@ export function createSelection({
       position: record.point.position,
       point: {
         pixelSize: 14,
-        color: Cesium.Color.CYAN,
+        color: Cesium.Color.fromCssColorString('#ec1313'),
         outlineColor: Cesium.Color.BLACK,
         outlineWidth: 2,
         disableDepthTestDistance: Number.POSITIVE_INFINITY,

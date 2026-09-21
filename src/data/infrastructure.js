@@ -19,7 +19,7 @@ export function createInfrastructureLayers(services) {
       id: 'local-datacenters',
       url: datacentersUrl,
       name: 'Datacenters',
-      color: '#00ffff', // Cyan
+      color: '#ec1313', // Cyan
       icon: '▣',
       source: 'Local',
       labels: true,

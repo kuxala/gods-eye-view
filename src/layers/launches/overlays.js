@@ -125,7 +125,7 @@ export function createOverlays({ state: layerState, services, parts, source }) {
       variant: 'label',
       title: mission,
       details,
-      accent: '#22e6e6',
+      accent: '#d7c9c1',
       priority: selected
         ? Number.MAX_SAFE_INTEGER
         : Number.isFinite(launchTimeMs)
@@ -229,10 +229,10 @@ export function createOverlays({ state: layerState, services, parts, source }) {
     canvas.width = size;
     canvas.height = size;
     const context = canvas.getContext('2d');
-    context.strokeStyle = '#22e6e6';
+    context.strokeStyle = '#d7c9c1';
     context.lineWidth = 2;
     context.lineCap = 'square';
-    context.shadowColor = 'rgba(34, 230, 230, .72)';
+    context.shadowColor = 'rgba(215, 201, 193, .72)';
     context.shadowBlur = 5;
     context.beginPath();
     context.moveTo(inset, inset + arm);

@@ -336,7 +336,7 @@
     rgba(236, 19, 19, 0.2),
     rgba(236, 19, 19, 0.75)
   );
-  color: #d5f7ff;
+  color: #f1e9e4;
   font-family: var(--font-mono);
   font-size: 8px;
   letter-spacing: 1px;
@@ -370,7 +370,7 @@
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 2px;
-  color: #bff4ff;
+  color: #f1e9e4;
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(236, 19, 19, 0.36);
   border-radius: 999px;

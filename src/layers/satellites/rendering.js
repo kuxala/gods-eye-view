@@ -46,7 +46,7 @@ export function createRendering({
     const basePositions = parts.orbits.computeOrbitPath(sat.satrec, bakeDate);
     if (basePositions.length < 2) return;
 
-    const pathColor = color || Cesium.Color.CYAN;
+    const pathColor = color || Cesium.Color.fromCssColorString('#ec1313');
 
     const primitive = new Cesium.Primitive({
       geometryInstances: new Cesium.GeometryInstance({

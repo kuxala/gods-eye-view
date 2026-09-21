@@ -107,7 +107,8 @@ export const MODEL_COLOR_BLEND_AMOUNT = 0.94;
 
 export const MODEL_BELLY_OFFSET_NATIVE = 6.719;
 
-export const CYAN_TRANSPARENT = Cesium.Color.CYAN.withAlpha(0);
+export const CYAN_TRANSPARENT =
+  Cesium.Color.fromCssColorString('#ec1313').withAlpha(0);
 
 export const COCKPIT_CONTACT_SIZE_PX = 6;
 
@@ -130,7 +131,7 @@ export const TRACKED_BILLBOARD_SCALE_BY_DISTANCE = new Cesium.NearFarScalar(
 
 /** @constant {string} Civilian trail hue (PRD F4, pinned). */
 
-export const TRAIL_COLOR = '#00d4ff';
+export const TRAIL_COLOR = '#ec1313';
 
 /** @constant {number} Combined cap on trail vertices (backfill + live accumulation). */
 
