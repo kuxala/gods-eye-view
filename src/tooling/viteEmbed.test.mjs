@@ -1,6 +1,6 @@
-import { test } from 'node:test';
+import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createBrowserViteConfig } from './vite.js';
+import { createBrowserViteConfig } from '../../build/vite.js';
 
 const EMBED_CSP = 'frame-ancestors https://militaryspend.org';
 
