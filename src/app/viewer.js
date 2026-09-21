@@ -105,6 +105,7 @@ export function installTrackpadPinchZoom(
 export function createApplicationViewer({ container, creditContainer }) {
   if (!container || !creditContainer)
     throw new TypeError('Viewer and credit containers are required');
+  const dpr = window.devicePixelRatio || 1;
   const viewer = new Cesium.Viewer(container, {
     timeline: false,
     animation: false,
@@ -119,11 +120,16 @@ export function createApplicationViewer({ container, creditContainer }) {
     infoBox: false,
     baseLayer: false,
     creditContainer,
-    msaaSamples: 4,
+    msaaSamples: dpr > 1 ? 1 : 4,
+    useBrowserRecommendedResolution: false,
     contextOptions: { webgl: { preserveDrawingBuffer: true } },
   });
   try {
     viewer.targetFrameRate = 60;
+    // Retina/phone screens otherwise render 3-4x the pixels for no visible gain
+    // inside a page-embedded globe. Cap the effective device pixel ratio.
+    const MAX_EFFECTIVE_DPR = 1.25;
+    viewer.resolutionScale = Math.min(1, MAX_EFFECTIVE_DPR / dpr);
     viewer.scene.globe.show = false;
     viewer.scene.skyAtmosphere.show = true;
     viewer.scene.skyAtmosphere.atmosphereLightIntensity = 18;

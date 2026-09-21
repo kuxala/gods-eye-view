@@ -53,10 +53,13 @@ export async function loadPhotorealisticTileset(
 export function createGoogleDirectTileset(Cesium, key) {
   key = clean(key);
   if (!key) throw new Error('Google 3D requires an explicit browser key');
-  return Cesium.createGooglePhotorealistic3DTileset({
-    key,
-    onlyUsingWithGoogleGeocoder: true,
-  });
+  return Cesium.createGooglePhotorealistic3DTileset(
+    {
+      key,
+      onlyUsingWithGoogleGeocoder: true,
+    },
+    { maximumScreenSpaceError: 24, dynamicScreenSpaceError: true },
+  );
 }
 
 export async function createGoogleIonTileset(
@@ -77,5 +80,7 @@ export async function createGoogleIonTileset(
     cacheBytes: 1536 * 1024 * 1024,
     maximumCacheOverflowBytes: 1024 * 1024 * 1024,
     enableCollision: true,
+    maximumScreenSpaceError: 24,
+    dynamicScreenSpaceError: true,
   });
 }
