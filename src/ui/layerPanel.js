@@ -32,12 +32,7 @@ const PANEL_GROUPS = [
   },
   {
     label: 'Infrastructure',
-    ids: [
-      'military-installations',
-      'local-datacenters',
-      'telegeography-submarine-cables',
-      'local-dams',
-    ],
+    ids: ['military-installations', 'local-datacenters', 'local-dams'],
   },
   {
     label: 'Events',

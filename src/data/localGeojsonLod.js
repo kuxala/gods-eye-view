@@ -12,9 +12,8 @@
  * The screen-space label overlay is already decluttered
  * (LOCAL_OVERLAY_COHORT_LIMIT); this also bounds world-space stems and their
  * geometry/ground-sampling work. It does not reduce the number of materialized
- * entities. Submarine cables use their own renderer and are not changed here.
- * Performance must be measured against the current renderer, not inferred
- * from the number of hidden stems.
+ * entities. Performance must be measured against the current renderer, not
+ * inferred from the number of hidden stems.
  *
  * Sense is INVERTED relative to `cctvLod.js`: a CCTV metro view earns MORE
  * cards, but a zoomed-out infrastructure view must show FEWER stems — that is
@@ -323,8 +322,7 @@ export const INFRA_LOD_MOTION_EPSILON_RATIO = 0.02;
 
 /**
  * Floor for that epsilon (m), so a camera near the surface still needs real
- * travel to spend a recompute. Matches the cable layer's flat
- * CABLE_SWEEP_MOTION_EPSILON_M.
+ * travel to spend a recompute.
  */
 export const INFRA_LOD_MOTION_EPSILON_MIN_M = 250;
 
@@ -377,8 +375,7 @@ export function infraLodMotionEpsilonM(
  * creeping camera probes on a fixed cadence instead of on every walk.
  *
  * Travel arrives SQUARED so the caller can hand over
- * `Cesium.Cartesian3.distanceSquared` and spend no sqrt on a per-walk probe,
- * the same trade `createCableReferenceSweepGate` makes.
+ * `Cesium.Cartesian3.distanceSquared` and spend no sqrt on a per-walk probe.
  *
  * @param {object} [input]
  * @param {number} [input.nowMs]

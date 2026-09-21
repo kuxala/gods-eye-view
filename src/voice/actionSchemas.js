@@ -135,7 +135,6 @@ const schemas = [
             'ais-live-vessels',
             'local-datacenters',
             'local-dams',
-            'telegeography-submarine-cables',
             'local-firms',
             'alpr-cameras',
           ],
@@ -167,7 +166,6 @@ const schemas = [
             'ais-live-vessels',
             'local-datacenters',
             'local-dams',
-            'telegeography-submarine-cables',
             'local-firms',
             'alpr-cameras',
           ],
@@ -275,12 +273,7 @@ const schemas = [
         },
         layerId: {
           type: 'string',
-          enum: [
-            'local-datacenters',
-            'local-dams',
-            'telegeography-submarine-cables',
-            'local-firms',
-          ],
+          enum: ['local-datacenters', 'local-dams', 'local-firms'],
         },
         limit: {
           type: 'number',

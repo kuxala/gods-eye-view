@@ -10,7 +10,6 @@ import { AMBIENT_CARD_COLLISION_CAPACITY } from './worldOverlay.js';
 import { EARTHQUAKE_OVERLAY_COHORT_LIMIT } from '../data/earthquakes.js';
 import { ROCKET_MISSION_AMBIENT_OVERLAY_COHORT_LIMIT } from '../data/rocketLaunches.js';
 import { RADIO_OVERLAY_COHORT_LIMIT } from '../data/radio.js';
-import { CABLE_REFERENCE_LABEL_WINNER_CAP } from '../data/telegeographySubmarineCables.js';
 import { isCalibratedAllocationRuntime } from '../../scripts/run-unit-tests.mjs';
 
 /**
@@ -42,8 +41,7 @@ import { isCalibratedAllocationRuntime } from '../../scripts/run-unit-tests.mjs'
  *   rocket missions      |      48 |         48 |      24 |           5195 |       108.2 |       6,000
  *   Phase 5 pre-missions |     591 |        591 |     353 |         127815 |       216.3 |     132,000
  *   Phase 5 final        |     639 |        639 |     353 |         133769 |       209.3 |     142,000
- *   submarine cables     |     160 |        160 |      96 |          17015 |       106.3 |      19,000
- *   all-live (w/ cables) |     864 |        864 |     398 |         164711 |       190.6 |     182,000
+ *   all-live             |     704 |        704 |     398 |       <164711 |      <190.6 |     182,000
  *   Phase 6 detection    |    5000 |       5000 |    5000 |  524191/600729 | 104.8/120.1 |     700,000
  *
  * The FIRMS/placement fixes traded the all-sources-live rows up (vessels
@@ -79,20 +77,15 @@ import { isCalibratedAllocationRuntime } from '../../scripts/run-unit-tests.mjs'
  * row adds the 48 mission candidates. Its 225 ceiling is not a mission-label
  * exception: the aggregate still performs the same 41 CCTV image-slot reads
  * and `drawImage` calls that require the documented image-inclusive ceiling;
- * the isolated mission row remains under 154 B/candidate. Cable references
- * were the depth-tested native exception when the intermediate phase rows
- * were calibrated; since the 2026-08-18 migration they publish a bounded
- * 160-label host cohort gated by their own isolated row below AND folded
- * into the recalibrated all-live aggregate (the phase3/phase4/phase5 rows
- * deliberately keep their historical pre-cable composition).
+ * the isolated mission row remains under 154 B/candidate.
  * The all-live row adds the bounded 64 ambient Radio cluster-label
  * cohort plus one protected selected-station label; Radio supplies painted
  * winners in the saturated ambient-label domain while the selected lane
- * remains protected. Since the 2026-08-18 recalibration the row also carries
- * the 160-winner submarine-cable cohort (864 candidates total, cables winning
- * painted ambient-label slots); its 182,000 frame budget and the existing 225
- * B/candidate image-inclusive ceiling retain more than 10% headroom over the
- * measured Node 24 median/max (164,711 / 167,313 B/frame).
+ * remains protected. The 182,000 frame budget and the 225 B/candidate
+ * image-inclusive ceiling were calibrated upstream with a 160-label
+ * submarine-cable cohort folded in (864 candidates, 164,711 / 167,313 B/frame
+ * median/max on Node 24); this fork ships without that layer, so the row
+ * carries 704 candidates under the same, now looser, ceilings.
  *
  * The Phase-6 row activates the production detection lane at Dense/100 over a
  * deterministic 5,000-observation, 2,500 km scene. All observations exercise
@@ -186,7 +179,7 @@ const WORKLOADS = [
     saturated: true,
   },
   {
-    name: 'with final Phase 5 host sources live (pre-cable-migration surface)',
+    name: 'with final Phase 5 host sources live',
     profile: 'phase5-military',
     entries: LOCAL_OVERLAY_COHORT_LIMIT * 2 + FIRMS_AMBIENT_COHORT_LIMIT
       + vesselOverlayCohortLimit(1600, 900) + 1 + CCTV_AMBIENT_CARD_MAX + 1
@@ -218,46 +211,23 @@ const WORKLOADS = [
     ambientCardCapacity: AMBIENT_CARD_COLLISION_CAPACITY,
   },
   {
-    // Recalibrated 2026-08-18 when the migrated submarine-cable cohort joined
-    // the aggregate (the row is "every shared-host source", so cable labels
-    // must coexist with Radio/earthquake/mission quotas here, not only in
-    // their isolated row; the probe shows cables winning painted slots in the
-    // saturated ambient-label domain). Node 24.19 measures 164,711 B/frame
-    // median (190.6 B/candidate) across two identical runs with cables folded
-    // in; 182,000 keeps the row's >10% headroom convention and the
-    // image-inclusive 225 ceiling stands with ~15% headroom.
+    // Budgets inherited from the upstream 2026-08-18 calibration, which
+    // included a 160-label submarine-cable cohort this fork does not ship;
+    // the ceilings therefore carry extra headroom rather than drift.
     name: 'with every shared-host source and bounded Radio text live',
     profile: 'all-live-radio',
     entries: LOCAL_OVERLAY_COHORT_LIMIT * 2 + FIRMS_AMBIENT_COHORT_LIMIT
       + vesselOverlayCohortLimit(1600, 900) + 1 + CCTV_AMBIENT_CARD_MAX + 1
       + EARTHQUAKE_OVERLAY_COHORT_LIMIT + 3
-      + ROCKET_MISSION_AMBIENT_OVERLAY_COHORT_LIMIT + RADIO_OVERLAY_COHORT_LIMIT + 1
-      + CABLE_REFERENCE_LABEL_WINNER_CAP,
+      + ROCKET_MISSION_AMBIENT_OVERLAY_COHORT_LIMIT + RADIO_OVERLAY_COHORT_LIMIT + 1,
     candidates: LOCAL_OVERLAY_COHORT_LIMIT * 2 + FIRMS_AMBIENT_COHORT_LIMIT
       + vesselOverlayCohortLimit(1600, 900) + 1 + CCTV_AMBIENT_CARD_MAX + 1
       + EARTHQUAKE_OVERLAY_COHORT_LIMIT + 3
-      + ROCKET_MISSION_AMBIENT_OVERLAY_COHORT_LIMIT + RADIO_OVERLAY_COHORT_LIMIT + 1
-      + CABLE_REFERENCE_LABEL_WINNER_CAP,
+      + ROCKET_MISSION_AMBIENT_OVERLAY_COHORT_LIMIT + RADIO_OVERLAY_COHORT_LIMIT + 1,
     maxBytesPerFrame: 182_000,
     maxBytesPerCandidatePerFrame: 225,
     saturated: true,
     ambientCardCapacity: AMBIENT_CARD_COLLISION_CAPACITY,
-  },
-  {
-    // 2026-08-18 cable-label migration: the former native exception now
-    // publishes a bounded 160-winner ambient-label cohort (collision capacity
-    // 96, so the row saturates). Isolated row like rocket-missions, so a
-    // cables-only regression stays attributable; the cohort is also folded
-    // into the recalibrated all-live aggregate below for interaction
-    // coverage. Measured median 17,015 B/frame (106.3 B/candidate)
-    // on Node 24.19; 19,000 carries ~11.7% headroom and the shared 154
-    // ceiling applies unchanged.
-    name: 'with the bounded submarine-cable reference cohort',
-    profile: 'submarine-cables',
-    entries: CABLE_REFERENCE_LABEL_WINNER_CAP,
-    candidates: CABLE_REFERENCE_LABEL_WINNER_CAP,
-    maxBytesPerFrame: 19_000,
-    saturated: true,
   },
   {
     name: 'with the Dense detection lane active over 5,000 observations',
