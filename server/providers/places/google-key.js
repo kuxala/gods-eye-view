@@ -18,8 +18,8 @@ export function keylessGooglePlacesResponse(apiKey) {
  * CCTV Street View fallback). These never reach the browser, so this key can
  * be restricted by server IP and scoped to Places API + Street View Static
  * API — while GOOGLE_MAPS_API_KEY stays referrer-restricted to Map Tiles +
- * Geocoding for the browser (#33). Splitting them is opt-in: unset, this
- * falls back to the shared browser key and nothing changes.
+ * Geocoding for the browser (#33). MilitarySpend fork: no fallback to the
+ * browser key — unset, server-side Google features simply stay off.
  */
 export function googleServerApiKey() {
   return resolveGoogleServerKey(process.env);

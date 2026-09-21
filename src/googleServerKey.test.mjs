@@ -5,6 +5,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { loadApiKey } from '../tools/streetview-headings.mjs';
+import { resolveGoogleServerKey } from '../scripts/google-server-key.mjs';
 
 /** Run fn with the two Google key env vars set to the given values, then restore. */
 function withKeys({ server, browser }, fn) {
@@ -31,15 +32,15 @@ test('server-side Google calls prefer the server-only key', () => {
   });
 });
 
-test('unsplit setups still work: falls back to the browser key', () => {
-  // The whole point of #33 being opt-in — one shared GOOGLE_MAPS_API_KEY must
-  // keep serving Places/Street View exactly as before.
-  withKeys({ server: undefined, browser: 'browser-key' }, () => {
-    assert.equal(googleServerApiKey(), 'browser-key');
-  });
-  withKeys({ server: '', browser: 'browser-key' }, () => {
-    assert.equal(googleServerApiKey(), 'browser-key');
-  });
+test('server calls never fall back to the client-exposed browser key', () => {
+  assert.equal(resolveGoogleServerKey({ GOOGLE_MAPS_API_KEY: 'browser-key' }), '');
+  assert.equal(
+    resolveGoogleServerKey({
+      GOOGLE_MAPS_API_KEY: 'browser-key',
+      GOOGLE_MAPS_SERVER_API_KEY: 'server-key',
+    }),
+    'server-key',
+  );
 });
 
 test('keyless stays keyless', () => {
@@ -55,11 +56,14 @@ test('the Street View tool resolves per-variable overrides before preferring the
     writeFileSync(envPath, 'GOOGLE_MAPS_API_KEY=file-browser\nGOOGLE_MAPS_SERVER_API_KEY="file-server" # separate key\n');
     assert.equal(loadApiKey(null, { envPath, environment: { GOOGLE_MAPS_API_KEY: 'shell-browser' } }), 'file-server');
     assert.equal(loadApiKey(null, { envPath, environment: { GOOGLE_MAPS_SERVER_API_KEY: 'shell-server' } }), 'shell-server');
-    assert.equal(loadApiKey(null, { envPath, environment: { GOOGLE_MAPS_SERVER_API_KEY: '' } }), 'file-browser');
+    assert.throws(
+      () => loadApiKey(null, { envPath, environment: { GOOGLE_MAPS_SERVER_API_KEY: '' } }),
+      /No API key found/,
+    );
     assert.equal(loadApiKey('explicit-key', { envPath, environment: {} }), 'explicit-key');
     assert.equal(loadApiKey(null, { envPath: root, environment: { GOOGLE_MAPS_SERVER_API_KEY: 'shell-server' } }), 'shell-server');
     writeFileSync(envPath, 'GOOGLE_MAPS_API_KEY=file-browser\n');
-    assert.equal(loadApiKey(null, { envPath, environment: {} }), 'file-browser');
+    assert.throws(() => loadApiKey(null, { envPath, environment: {} }), /No API key found/);
     writeFileSync(envPath, '');
     assert.throws(() => loadApiKey(null, { envPath, environment: {} }), /No API key found/);
   } finally {
@@ -79,8 +83,8 @@ test('both Places routes select the intended key and keep it out of responses', 
     for (const [server, browser, expected] of [
       ['server-secret', 'browser-public', 'server-secret'],
       ['server-secret', '', 'server-secret'],
-      ['', 'browser-public', 'browser-public'],
-      ['   ', 'browser-public', 'browser-public'],
+      ['', 'browser-public', null],
+      ['   ', 'browser-public', null],
       ['', '', null],
     ]) {
       process.env.GOOGLE_MAPS_SERVER_API_KEY = server;

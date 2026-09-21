@@ -78,7 +78,7 @@ export function loadApiKey(overrideKey, {
   }
   const key = resolveGoogleServerKey(environment, fromDotenv);
   if (key) return key;
-  throw new Error('No API key found. Set GOOGLE_MAPS_SERVER_API_KEY (or GOOGLE_MAPS_API_KEY) in .env or pass --key.');
+  throw new Error('No API key found. Set GOOGLE_MAPS_SERVER_API_KEY in .env or pass --key.');
 }
 
 // ---------------------------------------------------------------------------
