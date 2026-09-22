@@ -6,6 +6,7 @@ import {
 } from '../../data/motionModel.js';
 import { aircraftIcon } from '../../data/aircraftIcons.js';
 import { POSITION_HISTORY_LIMIT } from './recordPolicy.js';
+import { FLIGHT_DOT_MAX } from './policy.js';
 
 /** Apply reconciled aircraft records to Cesium resources and follow state. */
 export function createFlightSnapshotRenderer({
@@ -41,7 +42,27 @@ export function createFlightSnapshotRenderer({
 
     // Classification and display policy consume source-independent observations.
     refreshMilitaryRegistryIfStale();
-    for (const observation of snapshot.records) {
+    // Render budget: keep only the FLIGHT_DOT_MAX aircraft nearest the camera
+    // (tracked / pending-restore always kept); dropped ones age out as absent.
+    let observations = snapshot.records;
+    if (observations.length > FLIGHT_DOT_MAX && viewerLatDeg != null) {
+      const keep = new Set([
+        flightState._trackedIcao,
+        flightState._pendingTrackingRestore?.id,
+      ]);
+      const cosLat = Math.cos(Cesium.Math.toRadians(viewerLatDeg));
+      const distanceSq = (o) => {
+        if (keep.has(o.id)) return -1;
+        const dLon = ((o.longitude - viewerLonDeg + 540) % 360) - 180;
+        return (o.latitude - viewerLatDeg) ** 2 + (dLon * cosLat) ** 2;
+      };
+      observations = observations
+        .map((o) => [distanceSq(o), o])
+        .sort((a, b) => a[0] - b[0])
+        .slice(0, FLIGHT_DOT_MAX)
+        .map(([, o]) => o);
+    }
+    for (const observation of observations) {
       const icao24 = observation.id;
       acceptedSnapshotIcaos.add(icao24);
 

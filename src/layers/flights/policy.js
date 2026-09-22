@@ -66,8 +66,11 @@ export const MODEL_SCALE = 1;
 export const MODEL_MAX = 150;
 // 'proximity' cap (the planes immediately around you)
 
-export const MODEL_MAX_ALL = 350;
+export const MODEL_MAX_ALL = 200;
 // 'all' cap (everything out to ~the horizon)
+
+export const FLIGHT_DOT_MAX = 4000;
+// 2D dot cap: nearest aircraft to the camera per poll (embed render budget)
 // Per-mode ADD / KEEP radii. The two modes differ by RADIUS, not just cap — otherwise they look
 // IDENTICAL whenever fewer than a cap's worth of planes are in range (field bug: Proximity and All
 // rendered the same). 'proximity' = a tight ring; 'all' = roughly to the horizon (state-scale). Each

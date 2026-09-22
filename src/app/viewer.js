@@ -121,10 +121,11 @@ export function createApplicationViewer({ container, creditContainer }) {
     baseLayer: false,
     creditContainer,
     msaaSamples: dpr > 1 ? 1 : 4,
-    contextOptions: { webgl: { preserveDrawingBuffer: true } },
+    contextOptions: { webgl: { preserveDrawingBuffer: false } },
   });
   try {
-    viewer.targetFrameRate = 60;
+    // Embedded globe: 30 fps halves GPU work and pans stay smooth.
+    viewer.targetFrameRate = 30;
     viewer.scene.globe.show = false;
     viewer.scene.skyAtmosphere.show = true;
     viewer.scene.skyAtmosphere.atmosphereLightIntensity = 18;

@@ -37,6 +37,10 @@ export async function captureViewportImage() {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
   try {
+    // preserveDrawingBuffer is off: redraw synchronously so drawImage reads
+    // a live buffer (requestRender first so requestRenderMode draws).
+    viewer.scene.requestRender();
+    viewer.scene.render(viewer.clock.currentTime);
     ctx.drawImage(source, 0, 0, width, height);
     if (isNearlyBlackFrame(ctx, width, height)) {
       console.warn('[GEV Voice] Skipped black Cesium viewport capture');

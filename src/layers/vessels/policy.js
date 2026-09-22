@@ -7,9 +7,9 @@ import { VESSEL_LABEL_GRID_PX } from '../../data/vesselLabels.js';
 
 export const FOCUS_EVIDENCE_DEV = import.meta.env?.DEV === true;
 
-export const DEFAULT_RENDER_ROWS = 12000;
+export const DEFAULT_RENDER_ROWS = 3000;
 
-export const DEFAULT_ACTIVE_LABELS = 900;
+export const DEFAULT_ACTIVE_LABELS = 250;
 
 export const REFRESH_MS = 60000;
 

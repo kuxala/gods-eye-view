@@ -58,7 +58,14 @@ export function createGoogleDirectTileset(Cesium, key) {
       key,
       onlyUsingWithGoogleGeocoder: true,
     },
-    { maximumScreenSpaceError: 24, dynamicScreenSpaceError: true },
+    {
+      cacheBytes: 512 * 1024 * 1024,
+      maximumCacheOverflowBytes: 256 * 1024 * 1024,
+      maximumScreenSpaceError: 32,
+      dynamicScreenSpaceError: true,
+      preloadWhenHidden: false,
+      preloadFlightDestinations: false,
+    },
   );
 }
 
@@ -75,12 +82,14 @@ export async function createGoogleIonTileset(
     accessToken,
   });
   signal?.throwIfAborted();
-  // Match the installed SDK's Google helper rendering/cache defaults.
+  // Match the direct helper's embed-friendly rendering/cache budget.
   return Cesium.Cesium3DTileset.fromUrl(resource, {
-    cacheBytes: 1536 * 1024 * 1024,
-    maximumCacheOverflowBytes: 1024 * 1024 * 1024,
+    cacheBytes: 512 * 1024 * 1024,
+    maximumCacheOverflowBytes: 256 * 1024 * 1024,
     enableCollision: true,
-    maximumScreenSpaceError: 24,
+    maximumScreenSpaceError: 32,
     dynamicScreenSpaceError: true,
+    preloadWhenHidden: false,
+    preloadFlightDestinations: false,
   });
 }
