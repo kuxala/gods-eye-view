@@ -70,7 +70,23 @@ function refreshFailureFromStats(stats, label) {
  * for real-time data overlays on the CesiumJS globe.
  */
 export class LayerLifecycle {
-  constructor(viewer, { allowQaRegistration = false } = {}) {
+  /**
+   * @param {object} viewer Cesium viewer.
+   * @param {object} [options]
+   * @param {boolean} [options.allowQaRegistration]
+   * @param {() => boolean} [options.isHidden] Tab-visibility probe injected by
+   *   the browser composition root; defaults to "always visible".
+   * @param {(listener: () => void) => (() => void)} [options.onVisibilityChange]
+   *   Subscribes to visibility changes; returns an unsubscribe function.
+   */
+  constructor(
+    viewer,
+    {
+      allowQaRegistration = false,
+      isHidden = () => false,
+      onVisibilityChange = () => () => {},
+    } = {},
+  ) {
     this.viewer = viewer;
     this._activityListeners = new Set();
     this.layers = new Map(); // id → { module, enabled, initialized, intervalId, lifecycleState, lifecycleUncertain }
@@ -82,18 +98,16 @@ export class LayerLifecycle {
     this._registrationDispositions = null;
     this._allowQaRegistration = allowQaRegistration === true;
     this._qaLayerIds = new Set();
+    this._isHidden = isHidden;
     this._onVisibilityChange = () => {
-      if (globalThis.document?.hidden) return;
+      if (this._isHidden()) return;
       for (const [layerId, entry] of this.layers) {
         if (!entry.refreshMissedWhileHidden) continue;
         entry.refreshMissedWhileHidden = false;
         void this._runPeriodicUpdate(layerId, entry);
       }
     };
-    globalThis.document?.addEventListener?.(
-      'visibilitychange',
-      this._onVisibilityChange,
-    );
+    this._unsubscribeVisibility = onVisibilityChange(this._onVisibilityChange);
   }
 
   register(layerModule) {
@@ -536,7 +550,7 @@ export class LayerLifecycle {
     if (refreshInterval > 0) {
       entry.intervalId = setInterval(() => {
         // Hidden tab: skip the poll; one catch-up refresh runs on visible.
-        if (globalThis.document?.hidden) {
+        if (this._isHidden()) {
           entry.refreshMissedWhileHidden = true;
           return;
         }
@@ -544,7 +558,7 @@ export class LayerLifecycle {
       }, refreshInterval);
     } else if (updateInterval === 0) {
       entry.intervalId = setInterval(() => {
-        if (!entry.enabled || globalThis.document?.hidden) return;
+        if (!entry.enabled || this._isHidden()) return;
         this._publishActivity({ type: 'status' });
       }, entry.module.statsRefreshInterval || 1000);
     }
@@ -2186,10 +2200,8 @@ export class LayerLifecycle {
    * Should be called when the viewer is being torn down.
    */
   async destroyAll() {
-    globalThis.document?.removeEventListener?.(
-      'visibilitychange',
-      this._onVisibilityChange,
-    );
+    this._unsubscribeVisibility?.();
+    this._unsubscribeVisibility = null;
     this._publishActivity({ type: 'destroy-all' });
     for (const layerId of [...this.layers.keys()]) {
       await this.destroyLayer(layerId);

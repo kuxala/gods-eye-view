@@ -12,6 +12,11 @@ export function createApplicationData({
   // Initialize data layer manager
   const dataManager = new LayerLifecycle(viewer, {
     allowQaRegistration,
+    isHidden: () => document.hidden,
+    onVisibilityChange: (listener) => {
+      document.addEventListener('visibilitychange', listener);
+      return () => document.removeEventListener('visibilitychange', listener);
+    },
   });
   defer(async () => {
     await dataManager.destroyAll();
