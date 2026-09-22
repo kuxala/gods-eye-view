@@ -329,6 +329,11 @@ export function createFlightSnapshotRenderer({
     // in place is safe (the DR extrapolates a zero-velocity fix).
     motion._refloorStaleGroundedContacts(currentIcaos);
 
-    return { count: flightState._billboards.size, ids: acceptedSnapshotIcaos };
+    // The dot cap only limits rendering — the counter reports every row received.
+    const count =
+      observations.length < snapshot.records.length
+        ? snapshot.records.length
+        : flightState._billboards.size;
+    return { count, ids: acceptedSnapshotIcaos };
   };
 }
