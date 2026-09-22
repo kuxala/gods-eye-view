@@ -39,7 +39,6 @@ test('real dev and built-preview servers serve provider JSON and terminate unkno
     AISSTREAM_API_KEY: '',
     FIRMS_MAP_KEY: '',
     FIRMS_API_KEY: '',
-    TOMTOM_API_KEY: '',
     GOOGLE_MAPS_API_KEY: '',
     GOOGLE_MAPS_SERVER_API_KEY: '',
     OPENAI_API_KEY: '',

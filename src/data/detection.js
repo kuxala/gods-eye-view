@@ -102,11 +102,9 @@ const BRACKET_ALPHA_STEPS = 4;
 const LAYER_CANDIDATE_CAP = 2600;
 const LAYER_WEIGHTS = Object.freeze({
   military: 1.4,
-  traffic: 1.15,
   cctv: 1.1,
   flights: 1,
   satellites: 1,
-  bikeshare: 0.9,
   'ais-live-vessels': 1,
 });
 

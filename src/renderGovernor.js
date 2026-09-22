@@ -59,7 +59,6 @@ const CAMERA_DRIVEN_HOLDS = new Set([
   'camera-orbit',
   'cockpit',
   'tracked-entity',
-  'directions',
   'cctv-adjust',
   'cctv-projection',
 ]);
@@ -75,8 +74,6 @@ const TICKED_DATA_HOLDS = new Set([
   'satellites',
   'rocket-launches',
   'military-awareness',
-  'traffic',
-  'transit',
 ]);
 let _dataTickTimer = null;
 let _dataTickIntervalMs = 0;

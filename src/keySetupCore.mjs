@@ -74,14 +74,6 @@ export const KEY_SETUP_KEYS = Object.freeze([
     tier: 'free',
   }),
   Object.freeze({
-    id: 'tomtom',
-    title: 'TOMTOM',
-    unlocks: 'Real live traffic (keyless runs a simulation)',
-    getUrl: 'https://developer.tomtom.com',
-    envVars: Object.freeze(['TOMTOM_API_KEY']),
-    tier: 'free',
-  }),
-  Object.freeze({
     id: 'cesium-ion',
     title: 'CESIUM ION',
     unlocks: 'Bing imagery map stacks + world terrain',

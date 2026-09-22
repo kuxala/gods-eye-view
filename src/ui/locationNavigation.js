@@ -26,7 +26,7 @@ export class LocationNavigation {
     this._currentTarget = null;
     this._currentPoi = null;
     this._searchedLocationLabel = null;
-    this._trafficTransitionTimer = null;
+    this._worldJumpFallbackTimer = null;
     this._globeResetPromise = null;
     this._cancelGlobeReset = null;
     this._worldJumpActive = false;
@@ -143,21 +143,18 @@ export class LocationNavigation {
   }
 
   _beginWorldJumpTransition() {
-    const { suspendDetection, trafficLayer } = this.services;
-    clearTimeout(this._trafficTransitionTimer);
+    const { suspendDetection } = this.services;
+    clearTimeout(this._worldJumpFallbackTimer);
     this._worldJumpActive = true;
-    trafficLayer.beginWorldJump?.();
     suspendDetection('intercity');
   }
 
   _endWorldJumpTransition() {
-    const { resumeDetection, trafficLayer } = this.services;
-    clearTimeout(this._trafficTransitionTimer);
+    const { resumeDetection } = this.services;
+    clearTimeout(this._worldJumpFallbackTimer);
     this._worldJumpActive = false;
-    this._trafficTransitionTimer = null;
-    trafficLayer.endWorldJump?.();
+    this._worldJumpFallbackTimer = null;
     resumeDetection();
-    this._updateTrafficSyncChip(true);
   }
 
   _flyWithTransition(cityChanged, flyAction) {
@@ -173,7 +170,7 @@ export class LocationNavigation {
         onStart: () => this._beginWorldJumpTransition(),
         onComplete: finalize,
       });
-      this._trafficTransitionTimer = window.setTimeout(finalize, 5200);
+      this._worldJumpFallbackTimer = window.setTimeout(finalize, 5200);
       return result;
     });
   }
@@ -421,8 +418,8 @@ export class LocationNavigation {
     this._cancelGlobeReset?.();
     this._cancelGlobeReset = null;
     if (this._worldJumpActive) this._endWorldJumpTransition();
-    clearTimeout(this._trafficTransitionTimer);
-    this._trafficTransitionTimer = null;
+    clearTimeout(this._worldJumpFallbackTimer);
+    this._worldJumpFallbackTimer = null;
     this.orbitController?.stop();
   }
 }

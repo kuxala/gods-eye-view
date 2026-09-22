@@ -4,7 +4,6 @@ export const LOADING_REVEAL_DELAY_MS = 160;
 export const LOADING_TERMINAL_DWELL_MS = 2200;
 export const LOADING_FAILURE_DWELL_MS = 5000;
 export const LOADING_LONG_THRESHOLD_MS = 30000;
-export const TRAFFIC_SYNC_CONFIRM_MS = 1500;
 /** Layer statuses that are user guidance, not feed faults (see manager.js layerFeedState). */
 export const GUIDANCE_STATUSES = Object.freeze(['zoom-in', 'empty', 'idle']);
 
@@ -28,7 +27,7 @@ export function normalizeLayerLoading(layer = {}) {
     stats.refreshing === true;
   const count = finiteCount(stats.count);
   const stoppingInstallations =
-    ['military-installations', 'alpr-cameras'].includes(layer.id) && disabling;
+    layer.id === 'military-installations' && disabling;
   // Guidance statuses ask the user to act (zoom in, run a search). They are
   // normal operation, never a batch failure — mirrors layerFeedState's carve-out
   // so a prompt stored alongside the status cannot turn the chip red.
@@ -61,14 +60,6 @@ export function normalizeLayerLoading(layer = {}) {
     unavailable,
     keyRequired,
     degraded,
-    cameraRetry:
-      layer.id === 'alpr-cameras' && layer.enabled && !disabling
-        ? {
-            retryAt: Number(stats.retryAt) || 0,
-            retrying: stats.retrying === true,
-            error,
-          }
-        : null,
     installationRetry:
       layer.id === 'military-installations' && layer.enabled && !disabling
         ? {
@@ -200,77 +191,6 @@ export function presentGlobalLoadingStatus(
   return presentGlobalStatusNotice(notice, nowMs) || loadingPresentation;
 }
 
-/** Create the sampled Street Traffic chip state. */
-export function createTrafficSyncFeedbackState() {
-  return {
-    busy: false,
-    visible: false,
-    confirmationUntil: 0,
-    label: '',
-    progressText: '',
-  };
-}
-
-/**
- * Reduce one sampled Street Traffic status without extending completion on
- * every animation-loop poll. Coverage describes accepted data, not work.
- */
-export function reduceTrafficSyncFeedback(
-  previous,
-  { enabled = false, stats = {}, forceShow = false } = {},
-  nowMs = 0,
-) {
-  const state = previous || createTrafficSyncFeedbackState();
-  const now = Number.isFinite(nowMs) ? nowMs : 0;
-  if (!enabled) return createTrafficSyncFeedbackState();
-
-  const hasProgress = Number.isFinite(stats.phaseProgressPct);
-  const progressPct = hasProgress
-    ? Math.max(0, Math.min(100, Math.round(stats.phaseProgressPct)))
-    : stats.loading
-      ? 1
-      : 100;
-  const busy =
-    stats.loading === true ||
-    stats.worldJumping === true ||
-    (hasProgress && (progressPct < 100 || (stats.prewarmQueueDepth ?? 0) > 0));
-  const label = String(stats.phaseLabel || stats.loadingLabel || '').trim();
-
-  if (busy) {
-    return {
-      busy: true,
-      visible: true,
-      confirmationUntil: 0,
-      // Neutral default: the layer always supplies its own LIVE/SIMULATED
-      // label, and a fallback string must never claim a live feed on a
-      // keyless build.
-      label: label || 'syncing road network',
-      progressText: hasProgress ? `${progressPct}%` : '...',
-    };
-  }
-
-  const existingConfirmation =
-    state.confirmationUntil > now ? state.confirmationUntil : 0;
-  const confirmationUntil =
-    existingConfirmation ||
-    (state.busy || forceShow ? now + TRAFFIC_SYNC_CONFIRM_MS : 0);
-  const visible =
-    confirmationUntil > now && progressPct >= 100 && Boolean(label);
-  return {
-    busy: false,
-    visible,
-    confirmationUntil: visible ? confirmationUntil : 0,
-    label: visible ? label : '',
-    // The settled flash carries NO progress number. A settled chip is 100% by
-    // definition — the value never varied — and printing it beside a label
-    // that already ends in a real measurement produced the self-contradicting
-    // "LIVE · TomTom flow · 0% cov  100%". Coverage is the honest number, so
-    // it is the only one left standing; the progress slot belongs to work in
-    // flight.
-    progressText: '',
-  };
-}
-
 function terminalFromEvent(event) {
   const type = String(event?.type || '');
   if (type === 'visibility-failed' || type === 'refresh-failed' || event?.error)
@@ -375,30 +295,6 @@ export function reduceLoadingFeedback(previous, summary, nowMs, event = null) {
 
 /** Build the user-facing status copy for the current loading state. */
 export function presentLoadingFeedback(state, summary, nowMs) {
-  const camera = summary.records.find(
-    (record) => record.cameraRetry?.retryAt > 0,
-  );
-  const otherCameraFailure =
-    summary.records.some(
-      (record) =>
-        record.id !== 'alpr-cameras' &&
-        (state?.activeIds || []).includes(record.id) &&
-        (record.error || record.unavailable || record.keyRequired),
-    ) || (state?.failedEventIds || []).some((id) => id !== 'alpr-cameras');
-  if (camera && !summary.active.length && !otherCameraFailure) {
-    const seconds = Math.max(
-      0,
-      Math.ceil((camera.cameraRetry.retryAt - Date.now()) / 1000),
-    );
-    return {
-      state: 'retry',
-      label: (
-        camera.cameraRetry.error || 'Overpass temporarily unavailable'
-      ).toUpperCase(),
-      detail: `ALPR cameras · ${seconds ? `retrying in ${seconds}s` : 'retry pending'}`,
-    };
-  }
-
   const site = summary.records.find(
     (record) => record.installationRetry?.retryAt > 0,
   );
@@ -435,16 +331,6 @@ export function presentLoadingFeedback(state, summary, nowMs) {
     return { state: state.terminal, label, detail: '' };
   }
   const active = summary.active;
-  if (active.length === 1 && active[0].cameraRetry && !summary.disabling) {
-    return {
-      state: 'loading',
-      label: active[0].cameraRetry.retrying
-        ? 'RETRYING ALPR CAMERAS'
-        : 'FETCHING ALPR CAMERAS',
-      detail: 'OpenStreetMap · Overpass',
-    };
-  }
-
   if (
     active.length === 1 &&
     active[0].installationRetry &&

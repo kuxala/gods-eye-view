@@ -93,14 +93,6 @@ export const DATA_CREDITS = [
       '(ODbL 1.0)',
   },
   {
-    key: 'alpr-osm',
-    html:
-      'ALPR camera locations (automatic license plate readers): ' +
-      '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a> ' +
-      '(<a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>); ' +
-      'community mapping includes <a href="https://deflock.org" target="_blank" rel="noopener">DeFlock</a>',
-  },
-  {
     key: 'military-installations-osm',
     html:
       'Mapped installation context: ' +
@@ -174,22 +166,14 @@ export const DATA_CREDITS = [
       '<a href="https://data.calgary.ca/stories/s/Open-Calgary-Terms-of-Use/u45n-7awa" target="_blank" rel="noopener">Open Government Licence – City of Calgary</a>',
   },
   {
-    key: 'gbfs',
-    html: 'Bikeshare availability: GBFS operator feeds (e.g. Austin BCycle)',
-  },
-  {
     key: 'osrm-routing',
     // The service asks for its attribution to carry a "fix the map" link, so
     // a reader who spots a wrong turn can go and correct the data it came from.
     html:
-      'Routing (voice routes and Directions): OSRM on the FOSSGIS servers — ' +
+      'Routing (voice routes): OSRM on the FOSSGIS servers — ' +
       '<a href="https://routing.openstreetmap.de/about.html" target="_blank" rel="noopener">routing.openstreetmap.de</a> · ' +
       '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a> (ODbL) · ' +
       '<a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener">fix the map</a>',
-  },
-  {
-    key: 'gtfs-rt',
-    html: 'Transit vehicles: operator GTFS-Realtime feeds (each operator is credited below when its vehicles are shown)',
   },
   {
     key: 'radio-browser',
@@ -267,17 +251,8 @@ export const DATA_CREDITS = [
 /**
  * Conditional credits — registered via `registerDynamicCredit` only when the
  * corresponding capability actually activates (deliberately NOT part of
- * DATA_CREDITS, which is always-on). TomTom terms require attribution when
- * their flow data is displayed; keyless installs never show it, so the
- * credit only appears once live traffic-flow mode activates.
- * @type {{ key: string, html: string }}
+ * DATA_CREDITS, which is always-on).
  */
-export const TOMTOM_CREDIT = {
-  key: 'tomtom',
-  html:
-    'Traffic flow data © ' +
-    '<a href="https://www.tomtom.com" target="_blank" rel="noopener">TomTom</a>',
-};
 
 /** Registered when the first Natural Earth region outline resolves (public
  * domain — no attribution required; credited as a courtesy). */
@@ -287,27 +262,6 @@ export const NATURAL_EARTH_CREDIT = {
     'Physical region boundaries from ' +
     '<a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain)',
 };
-
-/**
- * Per-feed transit credit, registered the first time that feed's vehicles
- * render (see `src/data/transitFeeds.js` for the license of each).
- * @param {{ id: string, attribution: string, license: string, licenseUrl: string }} feed
- * @returns {{ key: string, html: string }}
- */
-export function transitFeedCredit(feed) {
-  const escape = (text) =>
-    String(text)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;');
-  return {
-    key: `transit-${feed.id}`,
-    html:
-      `Transit (${escape(feed.attribution)}): ` +
-      `<a href="${escape(feed.licenseUrl)}" target="_blank" rel="noopener">${escape(feed.license)}</a>`,
-  };
-}
 
 /** Registered when the Bhote Koshi event reconstruction activates. */
 export const BHOTE_KOSHI_CREDIT = {
@@ -339,7 +293,7 @@ const _dynamicCreditKeys = new Set();
  * Idempotent per `credit.key`; lands in the same "Data attribution" popover
  * as the static credits (showOnScreen=false).
  * @param {Cesium.Viewer} viewer — the initialized Cesium viewer
- * @param {{ key: string, html: string }} credit — e.g. `TOMTOM_CREDIT`
+ * @param {{ key: string, html: string }} credit — e.g. `NATURAL_EARTH_CREDIT`
  * @returns {boolean} True when the credit is (now) registered.
  */
 export function registerDynamicCredit(viewer, credit) {

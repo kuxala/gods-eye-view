@@ -43,8 +43,7 @@
     "test": "node scripts/run-unit-tests.mjs",
     "test:track": "node scripts/track-regression.mjs",
     "qa:map-source-tray": "node scripts/qa-map-source-tray.mjs",
-    "check:boundaries": "node scripts/check-import-directions.mjs && node scripts/check-package-boundaries.mjs",
-    "qa:transit": "node scripts/qa-transit.mjs"
+    "check:boundaries": "node scripts/check-import-directions.mjs && node scripts/check-package-boundaries.mjs"
   },
   "dependencies": {
     "@mapbox/vector-tile": "^3.0.0",
@@ -87,17 +86,9 @@
       "node": "./server/providers/terrain.js"
     },
     "./sources/terrain": "./src/data/terrainHeightsProxy.js",
-    "./server/providers/traffic": {
-      "node": "./server/providers/traffic.js"
-    },
-    "./sources/traffic": "./src/data/tomtomTiles.js",
     "./server/providers/firms": {
       "node": "./server/providers/firms.js"
     },
-    "./server/providers/gbfs": {
-      "node": "./server/providers/gbfs.js"
-    },
-    "./sources/gbfs": "./src/data/gbfsSource.js",
     "./server/providers/cctv": {
       "node": "./server/providers/cctv.js"
     },
@@ -156,11 +147,7 @@
     "./layers/launches": "./src/layers/launches/index.js",
     "./layers/installations": "./src/layers/installations/index.js",
     "./layers/awareness": "./src/layers/awareness/index.js",
-    "./layers/traffic": "./src/layers/traffic/index.js",
-    "./layers/bikeshare": "./src/layers/bikeshare/index.js",
-    "./layers/directions": "./src/layers/directions/index.js",
     "./layers/cctv": "./src/layers/cctv/index.js",
-    "./layers/alpr": "./src/layers/alpr/index.js",
     "./layers/radio": "./src/layers/radio/index.js",
     "./geography/natural-earth": "./src/data/naturalEarthRegions.js",
     "./geography/neighborhoods": "./src/data/neighborhoodPolygons.js",
@@ -215,8 +202,6 @@
     "./voice/session": "./src/voice/session.js",
     "./voice/session-controls": "./src/voice/sessionCommands.js",
     "./voice/realtime-session": "./src/voice/realtimeSession.js",
-    "./layers/alpr/source": "./src/layers/alpr/source.js",
-    "./layers/bikeshare/source": "./src/layers/bikeshare/source.js",
     "./layers/cctv/source": "./src/layers/cctv/source.js",
     "./layers/earthquakes/source": "./src/layers/earthquakes/source.js",
     "./layers/firms/source": "./src/layers/firms/source.js",
@@ -224,20 +209,11 @@
     "./layers/launches/source": "./src/layers/launches/source.js",
     "./layers/radio/source": "./src/layers/radio/source.js",
     "./layers/satellites/source": "./src/layers/satellites/source.js",
-    "./layers/traffic/source": "./src/layers/traffic/source.js",
     "./sources/reference": "./src/sources/reference.js",
     "./sources/http-body": "./src/sources/httpBody.js",
     "./sources/overpass": "./src/sources/overpass.js",
     "./search/nominatim": "./src/search/nominatim.js",
     "./sources/nominatim": "./src/sources/nominatim.js",
-    "./server/providers/transit": {
-      "node": "./server/providers/transit.js"
-    },
-    "./sources/transit": "./src/data/transitProxy.js",
-    "./layers/transit": "./src/layers/transit/index.js",
-    "./layers/transit/standalone": "./src/data/transit.js",
-    "./layers/transit/source": "./src/layers/transit/source.js",
-    "./sources/transit-service": "./src/sources/transitService.js",
     "./sources/map-features": "./src/sources/overpassFeatures.js"
   }
 }

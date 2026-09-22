@@ -32,7 +32,6 @@ export class LayerBindings {
     );
     this._disposed = false;
     this._dataManager = null;
-    this._directionsShellModule = null;
     this._cctvRequestFocusHandler = null;
     this._removeCctvRequestFocusListener = null;
     this._worldRequestFocusHandler = null;
@@ -92,30 +91,6 @@ export class LayerBindings {
         });
       });
   }
-  _connectDirectionsCamera() {
-    if (!this._dataManager) {
-      // Detaching: the layer outlives this shell, so it must not keep calling
-      // a facade whose viewer is going away.
-      this._directionsShellModule?.attachShellServices?.(null);
-      this._directionsShellModule = null;
-      return;
-    }
-    const directions = this._dataManager.layers?.get('directions')?.module;
-    if (this._directionsShellModule !== directions) {
-      this._directionsShellModule?.attachShellServices?.(null);
-      this._directionsShellModule = null;
-    }
-    if (typeof directions?.attachShellServices !== 'function') return;
-    this._directionsShellModule = directions;
-    directions.attachShellServices({
-      runNavigation: (navigate) =>
-        this.runImmediateNavigation('route', navigate),
-      floorFn: (lat, lon) => this.services.cachedGroundFloor(lat, lon),
-      warmFn: (cells) => this.services.warmGroundFloor(cells),
-      showToast: (message) => this._showToast(message),
-    });
-  }
-
   _persistAwarenessSelection(event, cleared = false) {
     if (!this._dataManager) return;
     const origin = String(event?.detail?.origin || 'programmatic');
@@ -195,7 +170,6 @@ export class LayerBindings {
     if (this._disposed) return;
     this._dataManager = dataManager || null;
     this.hud.attachDataManager(this._dataManager);
-    this._updateTrafficSyncChip();
     if (this._dataManagerUnsubscribe) {
       this._dataManagerUnsubscribe();
       this._dataManagerUnsubscribe = null;
@@ -211,7 +185,6 @@ export class LayerBindings {
     this._syncContextModeButtons();
     this._cctvControls.connect();
     this._radioControls.connect();
-    this._connectDirectionsCamera();
     if (!this._awarenessSelectedHandler) {
       this._awarenessSelectedHandler = (event) =>
         this._persistAwarenessSelection(event, false);
@@ -260,8 +233,6 @@ export class LayerBindings {
   disconnect() {
     this._dataManagerUnsubscribe?.();
     this._dataManagerUnsubscribe = null;
-    this._directionsShellModule?.attachShellServices?.(null);
-    this._directionsShellModule = null;
     this._dataManager = null;
   }
 }

@@ -308,11 +308,6 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled-only',
   }),
   Object.freeze({
-    id: 'alpr-cameras',
-    token: 'p',
-    disposition: 'enabled-only',
-  }),
-  Object.freeze({
     id: 'bhote-koshi-2026',
     token: 'h',
     disposition: 'enabled-only',
@@ -322,14 +317,12 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     token: 'z',
     disposition: 'enabled-only',
   }),
-  Object.freeze({ id: 'bikeshare', token: 'b', disposition: 'enabled-only' }),
   Object.freeze({
     id: 'cctv',
     token: 'c',
     disposition: 'enabled+options',
     optionOwner: 'cctv',
   }),
-  Object.freeze({ id: 'directions', token: 'n', disposition: 'enabled-only' }),
   Object.freeze({ id: 'earthquakes', token: 'e', disposition: 'enabled-only' }),
   Object.freeze({
     id: 'flights',
@@ -377,9 +370,14 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled+options',
     optionOwner: 'satellites',
   }),
-  Object.freeze({ id: 'traffic', token: 't', disposition: 'enabled-only' }),
-  Object.freeze({ id: 'transit', token: 'j', disposition: 'enabled-only' }),
 ]);
+
+/**
+ * Tokens of removed layers (bikeshare b, transit j, directions n, ALPR p,
+ * traffic t). Old share links carrying them still restore their other layers.
+ * Never reassign these tokens: an old `l=t` link must not enable a new layer.
+ */
+const RETIRED_LAYER_TOKENS = Object.freeze(new Set(['b', 'j', 'n', 'p', 't']));
 
 export const REGISTERED_LAYER_IDS = Object.freeze(
   LAYER_STATE_REGISTRY.map((entry) => entry.id),
@@ -569,7 +567,9 @@ export function decodeLayerStateParams(params) {
   // Fail closed on an oversized payload rather than decoding a truncated one.
   if (rawLayers.length > MAX_ENABLED_LAYERS_CHARS) return null;
   if (rawOptionsField.length > MAX_LAYER_OPTIONS_CHARS) return null;
-  const layerTokens = rawLayers.split('.').filter(Boolean);
+  const layerTokens = rawLayers
+    .split('.')
+    .filter((token) => token && !RETIRED_LAYER_TOKENS.has(token));
   // `l=` is the one valid explicit-empty representation. Any non-empty token
   // set containing an unknown member rejects the complete layer payload so a
   // typo or future token cannot silently become an authoritative empty set.

@@ -15,8 +15,6 @@ export function readLayerSource(file) {
       'rocketLaunches.js',
       'militaryInstallations.js',
       'militaryAwareness.js',
-      'traffic.js',
-      'bikeshare.js',
       'cctv.js',
     ].includes(basename(path))
   )
@@ -37,13 +35,9 @@ export function readLayerSource(file) {
                 ? '../layers/installations'
                 : basename(path) === 'militaryAwareness.js'
                   ? '../layers/awareness'
-                  : basename(path) === 'traffic.js'
-                    ? '../layers/traffic'
-                    : basename(path) === 'bikeshare.js'
-                      ? '../layers/bikeshare'
-                      : basename(path) === 'cctv.js'
-                        ? '../layers/cctv'
-                        : '../layers/vessels',
+                  : basename(path) === 'cctv.js'
+                    ? '../layers/cctv'
+                    : '../layers/vessels',
   );
   return readdirSync(directory)
     .filter((name) => name.endsWith('.js'))

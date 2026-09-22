@@ -17,17 +17,9 @@ test('panel presentation places Transit between Street Traffic and Bike Share in
   );
   assert.deepEqual(
     order.filter(({ label }) => label === 'Movement').map(({ id }) => id),
-    [
-      'satellites',
-      'flights',
-      'military',
-      'ais-live-vessels',
-      'traffic',
-      'transit',
-      'bikeshare',
-    ],
+    ['satellites', 'flights', 'military', 'ais-live-vessels'],
   );
-  assert.equal(order.filter(({ id }) => id === 'transit').length, 1);
+  assert.equal(order.filter(({ id }) => id === 'radio').length, 1);
 });
 
 test('partial feed controls distinguish incomplete records from stale data and outages', async () => {

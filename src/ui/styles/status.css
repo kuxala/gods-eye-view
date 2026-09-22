@@ -173,7 +173,6 @@
   line-height: 1;
 }
 
-#traffic-sync-chip,
 #cctv-sync-chip {
   position: fixed;
   top: 112px;
@@ -204,36 +203,26 @@
     0 0 14px rgba(236, 19, 19, 0.08);
 }
 
-/* Stacked below the traffic chip so both can show at once */
+/* Offset kept from when a second status chip sat above it */
 #cctv-sync-chip {
   top: 146px;
 }
 
-#traffic-sync-chip.visible,
 #cctv-sync-chip.visible {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
 
-#traffic-sync-label,
 #cctv-sync-label {
   color: rgba(226, 217, 213, 0.92);
 }
 
-#traffic-sync-progress,
 #cctv-sync-progress {
   color: #d7c9c1;
   font-weight: 600;
   letter-spacing: 1.6px;
   min-width: 34px;
   text-align: right;
-}
-
-/* The settled traffic chip carries no progress number — the label's coverage
-   figure is the honest one. Collapse the empty slot so the chip closes up
-   instead of trailing a 34px stub and its flex gap. */
-#traffic-sync-progress:empty {
-  display: none;
 }
 
 /* ── Split-flap chip text ─────────────────────────────────────────

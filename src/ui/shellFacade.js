@@ -41,14 +41,6 @@ export class ShellFacade {
     this._layerBindings._dataManager = value;
   }
 
-  get _directionsShellModule() {
-    return this._layerBindings?._directionsShellModule;
-  }
-
-  set _directionsShellModule(value) {
-    this._layerBindings._directionsShellModule = value;
-  }
-
   get _cctvRequestFocusHandler() {
     return this._layerBindings?._cctvRequestFocusHandler;
   }
@@ -191,14 +183,6 @@ export class ShellFacade {
 
   set _searchedLocationLabel(value) {
     this._locationNavigation._searchedLocationLabel = value;
-  }
-
-  get _trafficTransitionTimer() {
-    return this._locationNavigation._trafficTransitionTimer;
-  }
-
-  set _trafficTransitionTimer(value) {
-    this._locationNavigation._trafficTransitionTimer = value;
   }
 
   get _locationLookup() {
@@ -565,18 +549,6 @@ export class ShellFacade {
   }
 
   /**
-   * Hand the Directions layer the camera seams its FLY chip needs: the same
-   * immediate-navigation facade voice route flights go through, so there is
-   * one camera owner rather than a second one inside a data layer, the shared
-   * ground-floor read/warm the route dolly flies over, and the app's own toast
-   * so the layer can speak where the rest of the UI speaks.
-   * @returns {void}
-   */
-  _connectDirectionsCamera(...args) {
-    return this._layerBindings._connectDirectionsCamera(...args);
-  }
-
-  /**
    * On window resize, keep the draggable panel on-screen — a panel positioned near an edge can fall
    * outside a now-smaller viewport (audit U2). pp-toggles is right-pinned, so re-pin (horizontal) and
    * clamp its top. No-op until the panel has been positioned (explicit inline top).
@@ -835,16 +807,6 @@ export class ShellFacade {
   }
 
   /**
-   * Updates the traffic sync status chip with loading phase label and progress.
-   * Auto-hides after 1.5s when loading completes; stays visible while busy.
-   * @param {boolean} [forceShow=false] - Force the chip visible regardless of busy state.
-   * @returns {void}
-   */
-  _updateTrafficSyncChip(forceShow, now) {
-    return this._feedback._updateTrafficSyncChip(forceShow, now);
-  }
-
-  /**
    * Initializes panel collapse buttons and restores persisted collapsed state.
    * Also sets up hover-expand behavior for the style presets and location bar panels.
    * @returns {void}
@@ -917,7 +879,7 @@ export class ShellFacade {
   }
 
   /**
-   * Connects the layer data manager for traffic sync, CCTV state subscription,
+   * Connects the layer data manager for CCTV state subscription,
    * and layer enable/disable operations.
    * @param {object|null} dataManager - The DataManager instance, or null to detach.
    * @returns {void}
@@ -1295,16 +1257,6 @@ export class ShellFacade {
   /** Show a message in the universal top-center status banner. */
   _showGlobalStatusNotice(message, options) {
     return this._feedback._showGlobalStatusNotice(message, options);
-  }
-
-  /**
-   * 500 ms DOM ticker for the traffic sync chip (was per-frame). It also
-   * polls the loading chip as a safety net: a camera-driven layer can flip
-   * its own `stats.loading` without emitting a manager event, and that is
-   * the one loading start the event path cannot see.
-   */
-  _startTrafficChipTicker() {
-    return this._feedback._startTrafficChipTicker();
   }
 
   /**

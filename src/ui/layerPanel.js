@@ -16,19 +16,11 @@ const FEED_STATE_LABELS = Object.freeze({
 const PANEL_GROUPS = [
   {
     label: 'Movement',
-    ids: [
-      'satellites',
-      'flights',
-      'military',
-      'ais-live-vessels',
-      'traffic',
-      'transit',
-      'bikeshare',
-    ],
+    ids: ['satellites', 'flights', 'military', 'ais-live-vessels'],
   },
   {
     label: 'Cameras',
-    ids: ['cctv', 'alpr-cameras'],
+    ids: ['cctv'],
   },
   {
     label: 'Infrastructure',
@@ -40,7 +32,7 @@ const PANEL_GROUPS = [
   },
   {
     label: 'Utilities',
-    ids: ['directions', 'radio'],
+    ids: ['radio'],
   },
 ];
 const PANEL_ORDER = PANEL_GROUPS.flatMap(({ label, ids }) =>
@@ -51,9 +43,7 @@ const PANEL_POSITIONS = new Map(
 );
 const PANEL_LABELS = {
   'ais-live-vessels': 'Live Vessels',
-  bikeshare: 'Bike Share',
   cctv: 'Cameras',
-  'alpr-cameras': 'Mapped ALPR Cameras',
   'local-datacenters': 'Data Centers',
   'local-firms': 'Active Fires',
 };
