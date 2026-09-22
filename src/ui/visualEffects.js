@@ -9,6 +9,7 @@ import {
   SHARPEN_SHADER,
   TRANSITION_DURATION_MS,
 } from './visualPresets.js';
+import { getQualityPreset, onQualityTierChange } from '../qualityTier.js';
 
 /** Own the post-process stages and their animation, without DOM dependencies. */
 export class VisualEffects {
@@ -50,6 +51,7 @@ export class VisualEffects {
     this.destroyed = false;
     this.stageEntries = [];
     this.previousBloom = null;
+    this.removeQualityListener = null;
   }
 
   initStyles() {
@@ -106,6 +108,11 @@ export class VisualEffects {
     this.sharpenStage.enabled = false;
     this.viewer.scene.postProcessStages.add(this.sharpenStage);
     this.applySharpenIntensity(sharpenIntensity);
+    this.removeQualityListener = onQualityTierChange(() => {
+      this.syncBloomEnabled();
+      this.syncSharpenEnabled();
+      this.requestRender('quality-tier');
+    });
   }
 
   setStageIntensity(stage, value) {
@@ -124,9 +131,17 @@ export class VisualEffects {
 
   syncBloomEnabled() {
     if (this.stopped || !this.bloomStage) return;
+    // Quality tier: bloom only on high; sharpen on medium and high.
     this.bloomStage.enabled =
       this.bloomEnabled &&
+      getQualityPreset().postStages === 'user' &&
       bloomStrengthFromIntensity(this.bloomIntensity) > 0.06;
+  }
+
+  syncSharpenEnabled() {
+    if (this.stopped || !this.sharpenStage) return;
+    this.sharpenStage.enabled =
+      this.sharpenEnabled && getQualityPreset().postStages !== 'off';
   }
 
   applyBloomIntensity(intensity) {
@@ -163,7 +178,7 @@ export class VisualEffects {
   setSharpenEnabled(enabled) {
     if (this.stopped) return;
     this.sharpenEnabled = !!enabled;
-    if (this.sharpenStage) this.sharpenStage.enabled = this.sharpenEnabled;
+    this.syncSharpenEnabled();
     this.requestRender('sharpen');
   }
 
@@ -213,6 +228,8 @@ export class VisualEffects {
   stop() {
     if (this.stopped) return;
     this.stopped = true;
+    this.removeQualityListener?.();
+    this.removeQualityListener = null;
     if (this.frameId !== null) this.cancelFrame(this.frameId);
     this.frameId = null;
     this.releaseRender('style-anim');
