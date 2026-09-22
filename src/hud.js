@@ -763,6 +763,12 @@ export class IntelHUD {
   }
 
   _setSummaryText(text, animate) {
+    // Parked camera + failing AI summary retries this every 15 s with the same
+    // fallback line. Retyping it grows .hud-top-left per keystroke, and the
+    // world overlay's occluder ResizeObserver turns each step into a render.
+    const current = document.getElementById('hud-summary');
+    if (current?.textContent === text && this._summaryTypingInterval == null)
+      return;
     if (animate) {
       this._typeSummary(text);
       return;
