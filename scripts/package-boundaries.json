@@ -20,7 +20,7 @@
   },
   "viewer": {
     "exports": ["./application/viewer"],
-    "modules": ["src/app/viewer.js"],
+    "modules": ["src/app/viewer.js", "src/qualityTier.js"],
     "external": ["cesium"]
   },
   "vite-build": {
@@ -356,7 +356,8 @@
       "src/styles/thermal.js",
       "src/styles/anime.js",
       "src/styles/noir.js",
-      "src/styles/snow.js"
+      "src/styles/snow.js",
+      "src/qualityTier.js"
     ],
     "external": ["cesium"]
   },
@@ -580,7 +581,8 @@
       "src/ui/aircraftDisplay.js",
       "src/ui/layerBindings.js",
       "src/ui/displayBindings.js",
-      "src/ui/shellFacade.js"
+      "src/ui/shellFacade.js",
+      "src/qualityTier.js"
     ],
     "external": ["cesium"]
   },
@@ -731,7 +733,8 @@
       "src/layers/flights/records.js",
       "src/layers/flights/recordPolicy.js",
       "src/layers/flights/snapshotRenderer.js",
-      "src/data/inputOwnership.js"
+      "src/data/inputOwnership.js",
+      "src/qualityTier.js"
     ],
     "external": ["cesium"]
   },
@@ -766,7 +769,8 @@
       "src/layers/military/records.js",
       "src/layers/military/recordPolicy.js",
       "src/layers/military/snapshotRenderer.js",
-      "src/data/inputOwnership.js"
+      "src/data/inputOwnership.js",
+      "src/qualityTier.js"
     ],
     "external": ["cesium"]
   },
@@ -814,7 +818,8 @@
       "src/layers/vessels/records.js",
       "src/layers/vessels/recordPolicy.js",
       "src/layers/vessels/snapshotRenderer.js",
-      "src/data/inputOwnership.js"
+      "src/data/inputOwnership.js",
+      "src/qualityTier.js"
     ],
     "external": ["cesium"]
   },
@@ -1116,7 +1121,8 @@
       "src/maps/imagery.js",
       "src/maps/registry.js",
       "src/maps/terrain.js",
-      "src/keySetupCore.mjs"
+      "src/keySetupCore.mjs",
+      "src/qualityTier.js"
     ],
     "external": ["cesium"]
   },
@@ -1770,7 +1776,9 @@
       "src/director/sharing/lifetime.js",
       "src/director/authoring.js",
       "src/scenes/sharing.js",
-      "src/ui/sceneSharing.js"
+      "src/ui/sceneSharing.js",
+      "src/qualityTier.js",
+      "src/qualityWatchdog.js"
     ],
     "external": [
       "@mapbox/vector-tile",
@@ -2153,7 +2161,8 @@
       "src/sources/overpassFeaturesRecords.js",
       "src/sources/overpassFeatures.js",
       "src/sources/featureSource.js",
-      "src/sources/overpassRoads.js"
+      "src/sources/overpassRoads.js",
+      "src/qualityTier.js"
     ],
     "external": [
       "cesium",
@@ -2263,7 +2272,8 @@
       "src/ui/visualEffects.js",
       "src/ui/visualInput.js",
       "src/ui/visualPresets.js",
-      "src/ui/visualSettings.js"
+      "src/ui/visualSettings.js",
+      "src/qualityTier.js"
     ],
     "external": ["cesium"]
   },
@@ -2571,7 +2581,8 @@
       "src/sources/featureGeometry.js",
       "src/sources/overpassFeaturesRecords.js",
       "src/sources/overpassFeatures.js",
-      "src/sources/featureSource.js"
+      "src/sources/featureSource.js",
+      "src/qualityTier.js"
     ],
     "external": ["cesium", "egm96-universal", "pbf"]
   },
