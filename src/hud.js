@@ -117,6 +117,7 @@ export class IntelHUD {
     this._dataManagerUnsubscribe = null;
     this._summaryDirty = true;
     this._summaryRequest = null;
+    this._summaryEndpointAbsent = false;
     this._lastSummarySignature = '';
     this._summaryRevision = 0;
     // One-shot guards so the very first summary lands immediately instead of
@@ -699,6 +700,11 @@ export class IntelHUD {
       return;
     }
     if (!force && !this._summaryDirty) return;
+    if (this._summaryEndpointAbsent) {
+      this._summaryDirty = false;
+      this._setSummaryText(fallbackText, animate);
+      return;
+    }
     if (this.summaryPolicy.canRequest?.() === false) return;
 
     const revision = this._summaryRevision;
@@ -740,6 +746,13 @@ export class IntelHUD {
       const data = response.data;
       if (revision !== this._summaryRevision) return;
       if (isHudSummaryUnconfigured(response.status, data)) {
+        this._setSummaryText(fallbackText, animate);
+        return;
+      }
+      // Deployments without the summary route (the MilitarySpend fork) answer
+      // 404: stop polling for the session and keep the local fallback line.
+      if (response.status === 404) {
+        this._summaryEndpointAbsent = true;
         this._setSummaryText(fallbackText, animate);
         return;
       }
