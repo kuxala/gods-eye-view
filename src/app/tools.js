@@ -9,6 +9,8 @@ import {
   holdContinuousRender,
   releaseContinuousRender,
 } from '../renderGovernor.js';
+import { getQualityDiagnostics, getQualityTier } from '../qualityTier.js';
+import { installQualityWatchdog } from '../qualityWatchdog.js';
 
 /** Attach scene tools, rendering listeners and the application debug handle. */
 export function createApplicationTools({
@@ -58,6 +60,8 @@ export function createApplicationTools({
   // nothing animates per frame. Installed AFTER every module above has had
   // its chance to register pre-install holds. (perf wave 2)
   installRenderGovernor(viewer);
+  // Device quality tier: drop one tier if continuous frames run slow.
+  defer(installQualityWatchdog(viewer, { getTier: getQualityTier }));
 
   // Install the explicit scope mask used by the DISPLAY controls.
   installScopeMask(viewer);
@@ -110,6 +114,7 @@ export function createApplicationTools({
     weatherEffects,
     cockpitCloudEffects,
     getRenderGovernorDiagnostics,
+    getQualityDiagnostics,
     surfaceServices: operations.surface,
     requestRender: governorRequestRender,
   };

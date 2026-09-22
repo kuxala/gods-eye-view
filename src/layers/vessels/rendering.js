@@ -19,6 +19,7 @@ import {
   LABEL_GRID_PX,
   CARD_MIN_SEP_PX,
 } from './policy.js';
+import { tierCap } from '../../qualityTier.js';
 
 export function createRendering({
   vesselState,
@@ -76,7 +77,7 @@ export function createRendering({
     focusAlphaNeedsWrite,
   } = services.focus;
 
-  function renderRowLimit() {
+  function configuredRowLimit() {
     const configured = Number(options.maxRows);
     if (Number.isFinite(configured) && configured > 0) {
       return Math.max(500, Math.min(50000, Math.round(configured)));
@@ -84,12 +85,18 @@ export function createRendering({
     return DEFAULT_RENDER_ROWS;
   }
 
+  /** Configured cap, lowered by the active quality tier. */
+  function renderRowLimit() {
+    return tierCap(configuredRowLimit(), 'vesselRows');
+  }
+
   function labelRowLimit() {
     const configured = Number(options.maxLabels);
-    if (Number.isFinite(configured) && configured >= 0) {
-      return Math.max(0, Math.min(renderRowLimit(), Math.round(configured)));
-    }
-    return Math.min(DEFAULT_ACTIVE_LABELS, renderRowLimit());
+    const limit =
+      Number.isFinite(configured) && configured >= 0
+        ? Math.max(0, Math.min(renderRowLimit(), Math.round(configured)))
+        : Math.min(DEFAULT_ACTIVE_LABELS, renderRowLimit());
+    return tierCap(limit, 'vesselLabels');
   }
 
   function ensureCollections(viewer) {

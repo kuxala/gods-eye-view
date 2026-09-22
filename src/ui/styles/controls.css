@@ -325,6 +325,26 @@
   animation: pulse 2s ease-in-out infinite;
 }
 
+/* Unsupported-device fallback (src/main.js) — replaces the globe entirely. */
+.quality-fallback-link,
+.quality-fallback-retry {
+  display: block;
+  margin: 18px auto 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--accent);
+}
+
+.quality-fallback-retry {
+  padding: 6px 12px;
+  background: none;
+  border: 1px solid var(--text-dim);
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
 @keyframes pulse {
   0%,
   100% {
@@ -866,6 +886,17 @@
 }
 body.gev-drawing #cesiumContainer canvas {
   cursor: crosshair;
+}
+
+/* DISPLAY ▸ Quality: a standalone row, not a toggle's drawer */
+#quality-row {
+  min-width: 220px;
+  border-top: 1px solid var(--glass-border);
+  border-radius: 8px;
+}
+#quality-row .pp-mode-btn {
+  font-size: 8px;
+  letter-spacing: 0.35px;
 }
 
 /* Proximity / All segmented control under the 3D toggle */

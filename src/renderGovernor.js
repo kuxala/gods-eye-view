@@ -42,11 +42,14 @@
  * rewind. Camera motion or any non-data hold returns to continuous.
  */
 
+import { getQualityPreset, onQualityTierChange } from './qualityTier.js';
+
 let _viewer = null;
 let _installed = false;
 const _holds = new Set();
 let _cameraMoving = false;
 let _removeCameraListeners = null;
+let _removeQualityListener = null;
 
 const MOVING_FRAME_RATE = 30;
 const PARKED_FRAME_RATE = 15;
@@ -108,7 +111,12 @@ function setDataTickInterval(intervalMs) {
 function applyFrameRate() {
   let fast = _cameraMoving;
   for (const ownerId of CAMERA_DRIVEN_HOLDS) fast ||= _holds.has(ownerId);
-  const frameRate = fast ? MOVING_FRAME_RATE : PARKED_FRAME_RATE;
+  // Low quality tier moves at 20 fps; parked cadence is tier-independent.
+  const movingFrameRate = Math.min(
+    MOVING_FRAME_RATE,
+    getQualityPreset().movingFrameRate,
+  );
+  const frameRate = fast ? movingFrameRate : PARKED_FRAME_RATE;
   if (_viewer.targetFrameRate !== frameRate)
     _viewer.targetFrameRate = frameRate;
 }
@@ -159,9 +167,13 @@ export function installRenderGovernor(viewer) {
   const removeMoveEnd = viewer.camera?.moveEnd.addEventListener(() =>
     setCameraMoving(false),
   );
+  _removeQualityListener?.();
+  _removeQualityListener = onQualityTierChange(applyMode);
   _removeCameraListeners = () => {
     removeMoveStart?.();
     removeMoveEnd?.();
+    _removeQualityListener?.();
+    _removeQualityListener = null;
     _removeCameraListeners = null;
   };
   // Never let Cesium re-render on simulation-time deltas behind our back —

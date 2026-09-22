@@ -1,4 +1,8 @@
+import { QUALITY_PRESETS } from '../qualityTier.js';
+
 const clean = (value) => String(value || '').trim();
+/** Tile budget from the active quality tier (high when unspecified). */
+const DEFAULT_TILE_BUDGET = QUALITY_PRESETS.high.tileset;
 
 /**
  * Decide which map provider can deliver the best startup experience.
@@ -25,7 +29,7 @@ export function selectMapStartupRoute({
  */
 export async function loadPhotorealisticTileset(
   Cesium,
-  { googleApiKey = '', cesiumToken = '' } = {},
+  { googleApiKey = '', cesiumToken = '', budget = DEFAULT_TILE_BUDGET } = {},
 ) {
   const googleKey = clean(googleApiKey);
   const ionToken = clean(cesiumToken);
@@ -38,8 +42,8 @@ export async function loadPhotorealisticTileset(
   for (const attempt of attempts) {
     try {
       const tileset = attempt.googleKey
-        ? await createGoogleDirectTileset(Cesium, attempt.googleKey)
-        : await createGoogleIonTileset(Cesium, ionToken);
+        ? await createGoogleDirectTileset(Cesium, attempt.googleKey, budget)
+        : await createGoogleIonTileset(Cesium, ionToken, { budget });
       return { tileset, route: attempt.route, errors };
     } catch (error) {
       errors.push(error instanceof Error ? error : new Error(String(error)));
@@ -50,7 +54,11 @@ export async function loadPhotorealisticTileset(
 }
 
 /** Pass credentials to the source instead of changing SDK-wide defaults. */
-export function createGoogleDirectTileset(Cesium, key) {
+export function createGoogleDirectTileset(
+  Cesium,
+  key,
+  budget = DEFAULT_TILE_BUDGET,
+) {
   key = clean(key);
   if (!key) throw new Error('Google 3D requires an explicit browser key');
   return Cesium.createGooglePhotorealistic3DTileset(
@@ -59,9 +67,9 @@ export function createGoogleDirectTileset(Cesium, key) {
       onlyUsingWithGoogleGeocoder: true,
     },
     {
-      cacheBytes: 512 * 1024 * 1024,
+      cacheBytes: budget.cacheBytes,
       maximumCacheOverflowBytes: 256 * 1024 * 1024,
-      maximumScreenSpaceError: 32,
+      maximumScreenSpaceError: budget.maximumScreenSpaceError,
       dynamicScreenSpaceError: true,
       preloadWhenHidden: false,
       preloadFlightDestinations: false,
@@ -72,7 +80,7 @@ export function createGoogleDirectTileset(Cesium, key) {
 export async function createGoogleIonTileset(
   Cesium,
   accessToken,
-  { signal } = {},
+  { signal, budget = DEFAULT_TILE_BUDGET } = {},
 ) {
   accessToken = clean(accessToken);
   if (!accessToken)
@@ -84,10 +92,10 @@ export async function createGoogleIonTileset(
   signal?.throwIfAborted();
   // Match the direct helper's embed-friendly rendering/cache budget.
   return Cesium.Cesium3DTileset.fromUrl(resource, {
-    cacheBytes: 512 * 1024 * 1024,
+    cacheBytes: budget.cacheBytes,
     maximumCacheOverflowBytes: 256 * 1024 * 1024,
     enableCollision: true,
-    maximumScreenSpaceError: 32,
+    maximumScreenSpaceError: budget.maximumScreenSpaceError,
     dynamicScreenSpaceError: true,
     preloadWhenHidden: false,
     preloadFlightDestinations: false,

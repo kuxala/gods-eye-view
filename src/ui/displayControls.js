@@ -41,6 +41,8 @@ export function bindDisplayControls({ elements, actions }) {
     listen(el, 'click', 'setModelsMode', (el) =>
       el.dataset.mode === 'all' ? 'all' : 'proximity',
     );
+  for (const el of elements.qualityButtons || [])
+    listen(el, 'click', 'setQuality', (el) => el.dataset.quality);
   for (const el of elements.fadeSliders || []) listen(el, 'input', 'setFade');
   return {
     destroy() {

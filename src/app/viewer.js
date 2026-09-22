@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium';
+import { getQualityPreset } from '../qualityTier.js';
 
 const PINCH_ZOOM_MULTIPLIER = 8;
 const MAX_PINCH_PIXEL_DELTA = 120;
@@ -126,6 +127,7 @@ export function createApplicationViewer({ container, creditContainer }) {
   try {
     // Embedded globe: 30 fps halves GPU work and pans stay smooth.
     viewer.targetFrameRate = 30;
+    applyViewerQuality(viewer, getQualityPreset());
     viewer.scene.globe.show = false;
     viewer.scene.skyAtmosphere.show = true;
     viewer.scene.skyAtmosphere.atmosphereLightIntensity = 18;
@@ -135,5 +137,20 @@ export function createApplicationViewer({ container, creditContainer }) {
   } catch (error) {
     viewer.destroy();
     throw error;
+  }
+}
+
+/**
+ * Apply the viewer-level part of a quality preset (render resolution and the
+ * tile budget of an already-loaded photoreal tileset). Safe to call live.
+ * @param {Cesium.Viewer} viewer
+ * @param {import('../qualityTier.js').QualityPreset} preset
+ * @param {Cesium.Cesium3DTileset|null} [tileset]
+ */
+export function applyViewerQuality(viewer, preset, tileset = null) {
+  viewer.resolutionScale = preset.resolutionScale;
+  if (tileset && preset.tileset) {
+    tileset.maximumScreenSpaceError = preset.tileset.maximumScreenSpaceError;
+    tileset.cacheBytes = preset.tileset.cacheBytes;
   }
 }

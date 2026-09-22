@@ -8,6 +8,7 @@ import {
   trailAnchorForModel,
 } from '../../data/modelVisualAnchor.js';
 import * as Cesium from 'cesium';
+import { tierModelsMode } from '../../qualityTier.js';
 import { cockpitContactDotImage } from '../../data/cockpitContactDot.js';
 import { aircraftIcon, TRACKED_ICON_PX } from '../../data/aircraftIcons.js';
 import {
@@ -201,6 +202,8 @@ export function createRendering({
 
   function _modelRegimeActive() {
     if (!flightState._models3dEnabled) return false;
+    // Quality tier: low has no fleet models (the tracked contact is separate).
+    if (tierModelsMode(flightState._models3dMode) === 'off') return false;
     const h =
       flightState._viewer?.camera?.positionCartographic?.height ?? Infinity;
     return h < MODEL_ALT_CEIL_M;
@@ -212,7 +215,9 @@ export function createRendering({
 
   function _modelCap() {
     const mapCap =
-      flightState._models3dMode === 'all' ? MODEL_MAX_ALL : MODEL_MAX;
+      tierModelsMode(flightState._models3dMode) === 'all'
+        ? MODEL_MAX_ALL
+        : MODEL_MAX;
     // `Math.min` on purpose: cockpit may only ever LOWER the GLB budget.
     return flightState._cockpitContactMode
       ? Math.min(COCKPIT_MODEL_MAX, mapCap)
@@ -222,13 +227,13 @@ export function createRendering({
   /** Active ADD/KEEP radii (m) — mode-aware ('all' reaches ~to the horizon). Mirror of flights.js. */
 
   function _modelAddDistM() {
-    return flightState._models3dMode === 'all'
+    return tierModelsMode(flightState._models3dMode) === 'all'
       ? MODEL_ALL_ADD_M
       : MODEL_PROX_ADD_M;
   }
 
   function _modelKeepDistM() {
-    return flightState._models3dMode === 'all'
+    return tierModelsMode(flightState._models3dMode) === 'all'
       ? MODEL_ALL_KEEP_M
       : MODEL_PROX_KEEP_M;
   }

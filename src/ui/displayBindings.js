@@ -2,6 +2,27 @@ import { createFrameRateMonitor } from './frameRateMonitor.js';
 import { bindApplicationShortcuts } from './visualInput.js';
 import { bindDisplayControls } from './displayControls.js';
 import { canonicalizeDensity } from '../data/detectionPolicy.js';
+import {
+  getQualityOverride,
+  getQualityTier,
+  onQualityTierChange,
+  setQualityOverride,
+} from '../qualityTier.js';
+
+const QUALITY_TIER_LABELS = { low: 'Low', medium: 'Med', high: 'High' };
+
+/** Reflect the stored choice and the applied tier on DISPLAY ▸ Quality. */
+function syncQualityControl(buttons, readout) {
+  const override = getQualityOverride();
+  for (const button of buttons) {
+    const selected = button.dataset.quality === override;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-checked', String(selected));
+  }
+  if (readout)
+    readout.textContent =
+      override === 'auto' ? QUALITY_TIER_LABELS[getQualityTier()] || '' : '';
+}
 
 /** Own keyboard/display event subscriptions; settings remain with their state owners. */
 export class DisplayBindings {
@@ -92,6 +113,13 @@ export class DisplayBindings {
       },
     });
 
+    const qualityButtons = document.querySelectorAll('.quality-btn');
+    const qualityReadout = document.getElementById('quality-value');
+    const syncQuality = () =>
+      syncQualityControl(qualityButtons, qualityReadout);
+    syncQuality();
+    this._removeQualityListener?.();
+    this._removeQualityListener = onQualityTierChange(syncQuality);
     this._displayControls?.destroy();
     this._displayControls = bindDisplayControls({
       elements: {
@@ -113,6 +141,7 @@ export class DisplayBindings {
         celestialButton: this._celestialBtn,
         modelsButton: this._models3dBtn,
         modelModeButtons: this._models3dBtn ? this._models3dModeBtns : [],
+        qualityButtons,
       },
       actions: {
         setStyle: (style) => this.setStyle(style),
@@ -202,6 +231,10 @@ export class DisplayBindings {
           this._syncModels3dModeRow();
         },
         setModelsMode: (mode) => this._setModels3dMode(mode),
+        setQuality: (value) => {
+          setQualityOverride(value);
+          syncQuality();
+        },
       },
     });
   }
@@ -212,5 +245,7 @@ export class DisplayBindings {
     this._frameRateMonitor = null;
     this._displayControls?.destroy();
     this._displayControls = null;
+    this._removeQualityListener?.();
+    this._removeQualityListener = null;
   }
 }

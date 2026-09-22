@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium';
+import { tierModelsMode } from '../../qualityTier.js';
 import {
   CLASS_SCALE_2D,
   CLASS_MODEL_REAL,
@@ -212,6 +213,8 @@ export function createRendering({
 
   function _modelRegimeActive() {
     if (!flightState._models3dEnabled) return false;
+    // Quality tier: low has no fleet models (the tracked contact is separate).
+    if (tierModelsMode(flightState._models3dMode) === 'off') return false;
     const h =
       flightState._viewer?.camera?.positionCartographic?.height ?? Infinity;
     return h < MODEL_ALT_CEIL_M;
@@ -223,7 +226,9 @@ export function createRendering({
 
   function _modelCap() {
     const mapCap =
-      flightState._models3dMode === 'all' ? MODEL_MAX_ALL : MODEL_MAX;
+      tierModelsMode(flightState._models3dMode) === 'all'
+        ? MODEL_MAX_ALL
+        : MODEL_MAX;
     // `Math.min` on purpose: cockpit may only ever LOWER the GLB budget. Cockpit is
     // already the heaviest mode (20 Hz camera setView ahead of scene update, photoreal
     // retraversal, the cloud pass) and every model is its own draw call.
@@ -235,7 +240,7 @@ export function createRendering({
   /** Active ADD radius (m) — new planes inside this range get a model. Mode-aware: 'all' reaches far. */
 
   function _modelAddDistM() {
-    return flightState._models3dMode === 'all'
+    return tierModelsMode(flightState._models3dMode) === 'all'
       ? MODEL_ALL_ADD_M
       : MODEL_PROX_ADD_M;
   }
@@ -243,7 +248,7 @@ export function createRendering({
   /** Active KEEP radius (m) — a modeled plane keeps its model out to here (hysteresis vs ADD). */
 
   function _modelKeepDistM() {
-    return flightState._models3dMode === 'all'
+    return tierModelsMode(flightState._models3dMode) === 'all'
       ? MODEL_ALL_KEEP_M
       : MODEL_PROX_KEEP_M;
   }

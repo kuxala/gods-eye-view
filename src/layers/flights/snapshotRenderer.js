@@ -7,6 +7,7 @@ import {
 import { aircraftIcon } from '../../data/aircraftIcons.js';
 import { POSITION_HISTORY_LIMIT } from './recordPolicy.js';
 import { FLIGHT_DOT_MAX } from './policy.js';
+import { tierCap } from '../../qualityTier.js';
 
 /** Apply reconciled aircraft records to Cesium resources and follow state. */
 export function createFlightSnapshotRenderer({
@@ -45,7 +46,8 @@ export function createFlightSnapshotRenderer({
     // Render budget: keep only the FLIGHT_DOT_MAX aircraft nearest the camera
     // (tracked / pending-restore always kept); dropped ones age out as absent.
     let observations = snapshot.records;
-    if (observations.length > FLIGHT_DOT_MAX && viewerLatDeg != null) {
+    const dotMax = tierCap(FLIGHT_DOT_MAX, 'flightDots');
+    if (observations.length > dotMax && viewerLatDeg != null) {
       const keep = new Set([
         flightState._trackedIcao,
         flightState._pendingTrackingRestore?.id,
@@ -59,7 +61,7 @@ export function createFlightSnapshotRenderer({
       observations = observations
         .map((o) => [distanceSq(o), o])
         .sort((a, b) => a[0] - b[0])
-        .slice(0, FLIGHT_DOT_MAX)
+        .slice(0, dotMax)
         .map(([, o]) => o);
     }
     for (const observation of observations) {

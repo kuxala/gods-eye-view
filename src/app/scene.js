@@ -1,9 +1,11 @@
 import { createApplicationOperations } from './operations.js';
 import * as Cesium from 'cesium';
 import {
+  applyViewerQuality,
   createApplicationViewer,
   installTrackpadPinchZoom,
 } from '../app/viewer.js';
+import { getQualityPreset, onQualityTierChange } from '../qualityTier.js';
 import { registerDataCredits } from '../data/dataCredits.js';
 import { configureCreditKeyboardAccess } from '../creditKeyboard.js';
 import { MapStackController } from '../mapStackController.js';
@@ -58,14 +60,22 @@ export async function createApplicationScene({
   defer(installTrackpadPinchZoom(viewer));
   registerDataCredits(viewer, credits);
   configureCreditKeyboardAccess(document);
+  const hasPhotorealCredentials = Boolean(googleApiKey || cesiumToken);
+  // Low quality tier: no Google photoreal tileset at all — the keyless
+  // ellipsoid + Esri imagery stack is the whole map.
+  const qualityPreset = getQualityPreset();
+  const photorealSkipped = hasPhotorealCredentials && !qualityPreset.photoreal;
   loaderStatus.textContent =
-    googleApiKey || cesiumToken
+    hasPhotorealCredentials && !photorealSkipped
       ? 'Loading Google 3D Tiles...'
       : 'Loading the keyless globe...';
-  const photoreal = await loadPhotorealisticTileset(Cesium, {
-    googleApiKey,
-    cesiumToken,
-  });
+  const photoreal = photorealSkipped
+    ? { tileset: null, route: 'osm', errors: [] }
+    : await loadPhotorealisticTileset(Cesium, {
+        googleApiKey,
+        cesiumToken,
+        budget: qualityPreset.tileset,
+      });
   const tileset = photoreal.tileset;
   // A provider can finish after cancellation; retain ownership of its result.
   defer(() => {
@@ -119,5 +129,32 @@ export async function createApplicationScene({
   });
 
   signal.throwIfAborted();
+
+  // Live tier changes (DISPLAY ▸ Quality or the runtime watchdog).
+  let tierHidPhotoreal = false;
+  defer(
+    onQualityTierChange(({ reason }) => {
+      const preset = getQualityPreset();
+      applyViewerQuality(viewer, preset, tileset);
+      const activeId = mapStackController.getActiveId();
+      if (!preset.photoreal && activeId === 'photoreal') {
+        tierHidPhotoreal = true;
+        void mapStackController.setStack('esri-imagery');
+      } else if (preset.photoreal && tierHidPhotoreal) {
+        tierHidPhotoreal = false;
+        if (activeId === 'esri-imagery')
+          void mapStackController.setStack('photoreal');
+      } else if (
+        preset.photoreal &&
+        photorealSkipped &&
+        reason === 'override'
+      ) {
+        // Booted on low without the tileset; loading it cleanly needs a boot.
+        window.location.reload();
+        return;
+      }
+      governorRequestRender('quality-tier');
+    }),
+  );
   return { viewer, tileset, mapStackController, operations };
 }

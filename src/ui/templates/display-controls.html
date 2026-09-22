@@ -126,6 +126,20 @@
       <span class="pp-label">Clean UI</span>
     </button>
     <div class="pp-toggle-group">
+      <!-- Device quality tier (src/qualityTier.js). Auto = detected tier; the
+           readout shows the tier actually applied. Not part of share links. -->
+      <div class="pp-slider-row visible" id="quality-row">
+        <span class="pp-slider-mini-label">Quality</span>
+        <div class="pp-mode-seg" role="radiogroup" aria-label="Render quality">
+          <button class="pp-mode-btn quality-btn active" data-quality="auto" role="radio" aria-checked="true">Auto</button>
+          <button class="pp-mode-btn quality-btn" data-quality="low" role="radio" aria-checked="false">Low</button>
+          <button class="pp-mode-btn quality-btn" data-quality="medium" role="radio" aria-checked="false">Med</button>
+          <button class="pp-mode-btn quality-btn" data-quality="high" role="radio" aria-checked="false">High</button>
+        </div>
+        <span class="pp-slider-value" id="quality-value"></span>
+      </div>
+    </div>
+    <div class="pp-toggle-group">
       <button class="pp-toggle-btn" id="bloom-toggle" title="Bloom / Glow">
         <span class="pp-icon">&#x2728;</span>
         <span class="pp-label">Bloom</span>
