@@ -32,6 +32,14 @@
  *
  * Frame-rate budget: 30 fps while the camera moves or a camera-driven hold is
  * active; 15 fps when the camera is parked and only data layers animate.
+ *
+ * Ticked data mode (2026-09-22): when the camera is parked, ≥ 20 km up, and
+ * every hold is a tickable data animator, the scene stays in
+ * `requestRenderMode` and ONE governor-owned interval requests a frame at an
+ * altitude-based cadence (1 Hz above 2,000 km, 2 Hz above 200 km, 5 Hz
+ * above 20 km). The animators' preRender passes dead-reckon from the wall
+ * clock, so each ticked frame draws current positions — dots step, never
+ * rewind. Camera motion or any non-data hold returns to continuous.
  */
 
 let _viewer = null;
@@ -53,6 +61,50 @@ const CAMERA_DRIVEN_HOLDS = new Set([
   'cctv-projection',
 ]);
 
+/**
+ * Holds whose per-frame work is a wall-clock data animator (preRender dead
+ * reckoning / propagation), safe to advance on discrete ticks.
+ */
+const TICKED_DATA_HOLDS = new Set([
+  'flights',
+  'ais-vessels',
+  'military',
+  'satellites',
+  'rocket-launches',
+  'military-awareness',
+  'traffic',
+  'transit',
+]);
+let _dataTickTimer = null;
+let _dataTickIntervalMs = 0;
+
+/** Ticked-mode interval for a parked camera height; 0 = stay continuous. */
+function dataTickIntervalForHeight(heightM) {
+  if (!(heightM >= 20_000)) return 0;
+  if (heightM >= 2_000_000) return 1000;
+  if (heightM >= 200_000) return 500;
+  return 200;
+}
+
+function currentDataTickIntervalMs() {
+  if (_cameraMoving || _holds.size === 0) return 0;
+  for (const ownerId of _holds) if (!TICKED_DATA_HOLDS.has(ownerId)) return 0;
+  return dataTickIntervalForHeight(
+    _viewer.camera?.positionCartographic?.height,
+  );
+}
+
+function setDataTickInterval(intervalMs) {
+  if (intervalMs === _dataTickIntervalMs) return;
+  clearInterval(_dataTickTimer);
+  _dataTickTimer = null;
+  _dataTickIntervalMs = intervalMs;
+  if (intervalMs > 0)
+    _dataTickTimer = setInterval(() => {
+      if (!globalThis.document?.hidden) _viewer?.scene?.requestRender?.();
+    }, intervalMs);
+}
+
 function applyFrameRate() {
   let fast = _cameraMoving;
   for (const ownerId of CAMERA_DRIVEN_HOLDS) fast ||= _holds.has(ownerId);
@@ -68,7 +120,9 @@ const RECENT_REQUEST_CAP = 16;
 function applyMode() {
   if (!_installed || !_viewer?.scene) return;
   applyFrameRate();
-  const continuous = _holds.size > 0;
+  const dataTickIntervalMs = currentDataTickIntervalMs();
+  setDataTickInterval(dataTickIntervalMs);
+  const continuous = _holds.size > 0 && dataTickIntervalMs === 0;
   const scene = _viewer.scene;
   if (scene.requestRenderMode === !continuous) return;
   scene.requestRenderMode = !continuous;
@@ -96,7 +150,7 @@ export function installRenderGovernor(viewer) {
   _cameraMoving = false;
   const setCameraMoving = (moving) => {
     _cameraMoving = moving;
-    applyFrameRate();
+    applyMode();
   };
   // Camera-less test fakes skip the listeners and stay at the parked rate.
   const removeMoveStart = viewer.camera?.moveStart.addEventListener(() =>
@@ -147,14 +201,14 @@ export function releaseContinuousRender(ownerId) {
  * One-shot render request for a discrete scene mutation (layer tick, slider
  * write, annotation change). Always forwards to scene.requestRender() — in
  * continuous mode that is a harmless flag set (and forwarding closes the
- * request-then-last-release race); only idle-mode requests are recorded in
- * diagnostics. Cheap enough to call unconditionally after any mutation.
+ * request-then-last-release race); only idle/ticked-mode requests are
+ * recorded in diagnostics. Cheap enough to call unconditionally after any mutation.
  * @param {string} [reason] For diagnostics only.
  * @returns {void}
  */
 export function governorRequestRender(reason = 'unspecified') {
   if (!_installed || !_viewer?.scene) return;
-  if (_holds.size === 0) {
+  if (_viewer.scene.requestRenderMode) {
     _recentRequests.push({ reason, at: Date.now() });
     if (_recentRequests.length > RECENT_REQUEST_CAP) _recentRequests.shift();
   }
@@ -162,13 +216,17 @@ export function governorRequestRender(reason = 'unspecified') {
 }
 
 /**
- * @returns {{installed: boolean, mode: 'continuous'|'idle', holds: string[],
+ * @returns {{installed: boolean, mode: 'continuous'|'ticked'|'idle',
+ *   dataTickIntervalMs: number, holds: string[],
  *   recentRequests: Array<{reason: string, at: number}>}}
  */
 export function getRenderGovernorDiagnostics() {
+  let mode = 'idle';
+  if (_holds.size > 0) mode = _dataTickIntervalMs > 0 ? 'ticked' : 'continuous';
   return {
     installed: _installed,
-    mode: _holds.size > 0 ? 'continuous' : 'idle',
+    mode,
+    dataTickIntervalMs: _dataTickIntervalMs,
     holds: [..._holds].sort(),
     recentRequests: [..._recentRequests],
   };
@@ -178,6 +236,7 @@ export function getRenderGovernorDiagnostics() {
 export function uninstallRenderGovernor(viewer) {
   if (_viewer !== viewer) return;
   _removeCameraListeners?.();
+  setDataTickInterval(0);
   _viewer = null;
   _installed = false;
   _cameraMoving = false;
@@ -188,6 +247,7 @@ export function uninstallRenderGovernor(viewer) {
 /** Test seam: reset module state between unit tests. */
 export function _resetRenderGovernorForTest() {
   _removeCameraListeners?.();
+  setDataTickInterval(0);
   _cameraMoving = false;
   _viewer = null;
   _installed = false;
