@@ -11,8 +11,8 @@ import { expandApplicationHtml } from '../build/application-html.js';
 //      actually decides fresh-boot layer state — including the early return that
 //      makes each layer's own initializer the operative default.
 //   2. Scope feather. Owner: "I like to hide feather" set it to 0% on
-//      2026-08-22; the owner revised that to 8% on 2026-08-23 and locked 11%
-//      on 2026-08-24, a soft
+//      2026-08-22; the owner revised that to 8% on 2026-08-23, locked 11%
+//      on 2026-08-24, and raised it to 90% on 2026-09-22, a soft
 //      edge. The hard crop is still one drag away, and that is pinned too.
 //   3. Detection ON (Dense @ 75%) for EVERY style, Normal included.
 //      Owner: "detect should also be on by default."
@@ -79,22 +79,22 @@ function managerForHash(hash) {
 // ---------------------------------------------------------------------------
 
 test('first run opens with a subtle scope feather, at every surface that decides it', () => {
-  assert.equal(SCOPE_FEATHER_RATIO_DEFAULT, 0.11,
-    'owner final lock 2026-08-24, superseding the 08-22 hard-crop and 08-23 8% rulings');
-  assert.equal(getScopeMaskFeather(), 0.11,
+  assert.equal(SCOPE_FEATHER_RATIO_DEFAULT, 0.9,
+    'owner 2026-09-22, superseding the 08-24 11% lock');
+  assert.equal(getScopeMaskFeather(), 0.9,
     'and the live module starts there, not merely documents it');
 
   // The slider and its readout are the same default rendered as markup — a
   // fresh boot applies no restore, so a stale value here would show one number
   // over a mask drawn at another.
-  assert.match(indexHtml, /id="scope-feather-slider"[^>]*\svalue="11"/,
-    'index.html: the feather slider ships at 11');
-  assert.match(indexHtml, /id="scope-feather-value"[^>]*>11%</,
+  assert.match(indexHtml, /id="scope-feather-slider"[^>]*\svalue="90"/,
+    'index.html: the feather slider ships at 90');
+  assert.match(indexHtml, /id="scope-feather-value"[^>]*>90%</,
     'index.html: and its readout agrees with the handle');
 
   // The link this session generates must describe the mask this session draws,
   // for the window before the first _syncShareState.
-  assert.match(shareSource, /this\._scopeFeatherPct = 11;/,
+  assert.match(shareSource, /this\._scopeFeatherPct = 90;/,
     'sharelink.js: the generator starts from the same value the mask starts at');
 });
 
