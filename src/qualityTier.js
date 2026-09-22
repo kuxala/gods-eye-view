@@ -100,10 +100,9 @@ export function detectTier({
     cores <= 4
   )
     tier = 'low';
-  else if (
-    /intel.*iris|radeon.*vega|apple m1\b/i.test(renderer) ||
-    deviceMemoryGb <= 8
-  )
+  // No deviceMemory rule here: Chrome caps it at 8, so "≤ 8" would pin every
+  // Chrome user to medium. Memory only decides the low tier (≤ 4).
+  else if (/intel.*iris|radeon.*vega|apple m1\b/i.test(renderer))
     tier = 'medium';
   if (onBattery) tier = TIER_ORDER[Math.max(0, TIER_ORDER.indexOf(tier) - 1)];
   return tier;
