@@ -82,6 +82,18 @@ export class LayerLifecycle {
     this._registrationDispositions = null;
     this._allowQaRegistration = allowQaRegistration === true;
     this._qaLayerIds = new Set();
+    this._onVisibilityChange = () => {
+      if (globalThis.document?.hidden) return;
+      for (const [layerId, entry] of this.layers) {
+        if (!entry.refreshMissedWhileHidden) continue;
+        entry.refreshMissedWhileHidden = false;
+        void this._runPeriodicUpdate(layerId, entry);
+      }
+    };
+    globalThis.document?.addEventListener?.(
+      'visibilitychange',
+      this._onVisibilityChange,
+    );
   }
 
   register(layerModule) {
@@ -523,11 +535,16 @@ export class LayerLifecycle {
           : 0;
     if (refreshInterval > 0) {
       entry.intervalId = setInterval(() => {
+        // Hidden tab: skip the poll; one catch-up refresh runs on visible.
+        if (globalThis.document?.hidden) {
+          entry.refreshMissedWhileHidden = true;
+          return;
+        }
         void this._runPeriodicUpdate(layerId, entry);
       }, refreshInterval);
     } else if (updateInterval === 0) {
       entry.intervalId = setInterval(() => {
-        if (!entry.enabled) return;
+        if (!entry.enabled || globalThis.document?.hidden) return;
         this._publishActivity({ type: 'status' });
       }, entry.module.statsRefreshInterval || 1000);
     }
@@ -2169,6 +2186,10 @@ export class LayerLifecycle {
    * Should be called when the viewer is being torn down.
    */
   async destroyAll() {
+    globalThis.document?.removeEventListener?.(
+      'visibilitychange',
+      this._onVisibilityChange,
+    );
     this._publishActivity({ type: 'destroy-all' });
     for (const layerId of [...this.layers.keys()]) {
       await this.destroyLayer(layerId);

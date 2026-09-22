@@ -247,13 +247,25 @@ export class IntelHUD {
    */
   _startTimers() {
     // Timestamp — every second
-    this._timestampInterval = setInterval(() => {
+    const updateTimestamp = () => {
       const el = document.getElementById('hud-timestamp');
       if (el) el.textContent = this._formatUTC();
+    };
+    this._timestampInterval = setInterval(() => {
+      if (!document.hidden) updateTimestamp();
     }, 1000);
+
+    // Hidden tab: every timer below skips its work; one refresh on visible.
+    this._onVisibilityChange = () => {
+      if (document.hidden) return;
+      updateTimestamp();
+      if (this._visible) this._updateCameraData();
+    };
+    document.addEventListener('visibilitychange', this._onVisibilityChange);
 
     // REC blink — every 800ms
     this._recBlinkInterval = setInterval(() => {
+      if (document.hidden) return;
       this._recBlinkState = !this._recBlinkState;
       const dot = document.getElementById('hud-rec-dot');
       if (dot)
@@ -262,13 +274,13 @@ export class IntelHUD {
 
     // Camera-derived data — 4 updates/second (250ms)
     this._updateInterval = setInterval(() => {
-      if (!this._visible) return;
+      if (!this._visible || document.hidden) return;
       this._updateCameraData();
     }, 250);
 
     // Semantic summary refresh cadence
     this._summaryInterval = setInterval(() => {
-      if (!this._visible) return;
+      if (!this._visible || document.hidden) return;
       void this._updateSummary(true);
     }, HUD_SUMMARY_INTERVAL_MS);
   }
@@ -917,6 +929,7 @@ export class IntelHUD {
     clearInterval(this._timestampInterval);
     clearInterval(this._summaryInterval);
     clearInterval(this._summaryTypingInterval);
+    document.removeEventListener('visibilitychange', this._onVisibilityChange);
     this.viewer.camera.moveEnd.removeEventListener(this._onCameraMoveEnd);
     this._dataManagerUnsubscribe?.();
     this._summaryRequest?.abort();
