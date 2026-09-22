@@ -29,11 +29,37 @@
  * diagnostics read like a story.
  *
  * The governor is O(1) passive: no per-frame work of its own, ever.
+ *
+ * Frame-rate budget: 30 fps while the camera moves or a camera-driven hold is
+ * active; 15 fps when the camera is parked and only data layers animate.
  */
 
 let _viewer = null;
 let _installed = false;
 const _holds = new Set();
+let _cameraMoving = false;
+let _removeCameraListeners = null;
+
+const MOVING_FRAME_RATE = 30;
+const PARKED_FRAME_RATE = 15;
+/** Holds whose per-frame work moves the camera — these always get 30 fps. */
+const CAMERA_DRIVEN_HOLDS = new Set([
+  'camera-verb',
+  'camera-orbit',
+  'cockpit',
+  'tracked-entity',
+  'directions',
+  'cctv-adjust',
+  'cctv-projection',
+]);
+
+function applyFrameRate() {
+  let fast = _cameraMoving;
+  for (const ownerId of CAMERA_DRIVEN_HOLDS) fast ||= _holds.has(ownerId);
+  const frameRate = fast ? MOVING_FRAME_RATE : PARKED_FRAME_RATE;
+  if (_viewer.targetFrameRate !== frameRate)
+    _viewer.targetFrameRate = frameRate;
+}
 
 /** Debug trail of the most recent one-shot render requests (idle mode only). */
 const _recentRequests = [];
@@ -41,6 +67,7 @@ const RECENT_REQUEST_CAP = 16;
 
 function applyMode() {
   if (!_installed || !_viewer?.scene) return;
+  applyFrameRate();
   const continuous = _holds.size > 0;
   const scene = _viewer.scene;
   if (scene.requestRenderMode === !continuous) return;
@@ -63,8 +90,26 @@ function applyMode() {
 export function installRenderGovernor(viewer) {
   if (!viewer?.scene)
     throw new TypeError('installRenderGovernor requires a Cesium viewer');
+  _removeCameraListeners?.();
   _viewer = viewer;
   _installed = true;
+  _cameraMoving = false;
+  const setCameraMoving = (moving) => {
+    _cameraMoving = moving;
+    applyFrameRate();
+  };
+  // Camera-less test fakes skip the listeners and stay at the parked rate.
+  const removeMoveStart = viewer.camera?.moveStart.addEventListener(() =>
+    setCameraMoving(true),
+  );
+  const removeMoveEnd = viewer.camera?.moveEnd.addEventListener(() =>
+    setCameraMoving(false),
+  );
+  _removeCameraListeners = () => {
+    removeMoveStart?.();
+    removeMoveEnd?.();
+    _removeCameraListeners = null;
+  };
   // Never let Cesium re-render on simulation-time deltas behind our back —
   // idle means idle. All re-renders are camera/tiles (Cesium-native) or
   // explicit requests.
@@ -132,14 +177,18 @@ export function getRenderGovernorDiagnostics() {
 /** Release the installed viewer after its animation owners have stopped. */
 export function uninstallRenderGovernor(viewer) {
   if (_viewer !== viewer) return;
+  _removeCameraListeners?.();
   _viewer = null;
   _installed = false;
+  _cameraMoving = false;
   _holds.clear();
   _recentRequests.length = 0;
 }
 
 /** Test seam: reset module state between unit tests. */
 export function _resetRenderGovernorForTest() {
+  _removeCameraListeners?.();
+  _cameraMoving = false;
   _viewer = null;
   _installed = false;
   _holds.clear();
