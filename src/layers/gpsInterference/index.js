@@ -12,6 +12,11 @@ const CAVEAT =
   'Consistent with jamming or spoofing but not proof; no data where no ' +
   'aircraft fly or no receivers exist (most of Iran).';
 
+const HEURISTIC_NOTE =
+  'Heuristic: NACp<8 is not gpsjam.org’s own (undisclosed) threshold, ' +
+  'just the usual ADS-B-mandate accuracy floor (EPU<93m) used here as a ' +
+  'stand-in for "degraded".';
+
 const STATUS = Object.freeze({
   red: { color: '#ec1313', alpha: 0.55, label: '>10% degraded' },
   yellow: { color: '#f2b84b', alpha: 0.45, label: '2–10%' },
@@ -46,6 +51,7 @@ export function createGpsInterferenceLayer({ fetchImpl = fetch } = {}) {
   let _count = 0;
   let _legend = [];
   let _recordsByEntityId = new Map();
+  let _cardOpen = false;
 
   function showCardFor(record) {
     const pct = record.pctBad.toFixed(1);
@@ -60,6 +66,7 @@ export function createGpsInterferenceLayer({ fetchImpl = fetch } = {}) {
       note: CAVEAT,
       link: { href: 'https://gpsjam.org', label: 'Compare: gpsjam.org →' },
     });
+    _cardOpen = true;
     governorRequestRender(`${LAYER_ID}:card`);
   }
 
@@ -75,8 +82,9 @@ export function createGpsInterferenceLayer({ fetchImpl = fetch } = {}) {
         : null;
       if (record) {
         showCardFor(record);
-      } else {
+      } else if (_cardOpen) {
         hideInfoCard(LAYER_ID);
+        _cardOpen = false;
         governorRequestRender(`${LAYER_ID}:card`);
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -133,7 +141,12 @@ export function createGpsInterferenceLayer({ fetchImpl = fetch } = {}) {
         label: STATUS.ok.label,
         color: STATUS.ok.color,
         count: okCount,
-        blurb: CAVEAT,
+      },
+      {
+        label: 'Heuristic — read the caveat',
+        color: 'transparent',
+        count: redCount + yellowCount + okCount,
+        blurb: `${CAVEAT} ${HEURISTIC_NOTE}`,
       },
     ];
   }
@@ -175,6 +188,7 @@ export function createGpsInterferenceLayer({ fetchImpl = fetch } = {}) {
       _enabled = false;
       if (_dataSource) _dataSource.show = false;
       hideInfoCard(LAYER_ID);
+      _cardOpen = false;
       governorRequestRender(`${LAYER_ID}:disable`);
     },
 
@@ -215,6 +229,7 @@ export function createGpsInterferenceLayer({ fetchImpl = fetch } = {}) {
       _abort?.abort();
       _abort = null;
       hideInfoCard(LAYER_ID);
+      _cardOpen = false;
       if (_handler) {
         _handler.destroy();
         _handler = null;

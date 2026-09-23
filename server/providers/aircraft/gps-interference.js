@@ -37,8 +37,19 @@ import {
  *
  * State: Map<cellKey, Map<hourBucket, {good:Set<hex>, bad:Set<hex>}>>,
  * pruned to the trailing 24h (hourly buckets, so old hours drop cleanly)
- * once per full sweep. Persisted to .gev-cache/gps-interference.json once
- * per sweep, loaded once at process start.
+ * on every sweep AND on every request (buildPayload prunes too, so a
+ * request arriving after a long idle gap never serves frozen buckets as
+ * fresh). Persisted to .gev-cache/gps-interference.json once per sweep
+ * (atomic tmp-file + rename), loaded once at process start. `coverageSince`
+ * is recomputed on every (re)start of polling — after an idle stop or a
+ * process restart it is reset to max(restart time, oldest retained bucket),
+ * so the client's partial-window signal never claims coverage older than
+ * what the current run actually observed.
+ *
+ * CELL_DEG (0.5°) is used as the hex CIRCUMRADIUS (center-to-vertex) in
+ * hex.js's hexVertices/hexCenter, not an edge length or width — so the
+ * grid's cell-to-cell spacing is smaller than 0.5° in each direction. Left
+ * as-is per the brief's "size 0.5° (~50 km)" wording.
  *
  * adsb.lol data is ODbL 1.0; this derived grid is a derived database and
  * stays under the same share-alike terms (see DATA_SOURCES.md).
@@ -180,8 +191,11 @@ export function gpsInterferenceProxy() {
         }
         cells.push([ck, hours]);
       }
+      // Atomic write: a crash/restart mid-write must never leave a truncated
+      // or half-written cache file behind for readDiskOnce() to choke on.
+      const tmpPath = `${CACHE_PATH}.tmp-${process.pid}`;
       await fsp.writeFile(
-        CACHE_PATH,
+        tmpPath,
         JSON.stringify({
           generatedAt: _generatedAt,
           coverageSince: _coverageSince,
@@ -189,12 +203,24 @@ export function gpsInterferenceProxy() {
         }),
         'utf8',
       );
+      await fsp.rename(tmpPath, CACHE_PATH);
     } catch (err) {
       console.warn(
         '[gps-interference] cache write failed:',
         err?.message || err,
       );
     }
+  }
+
+  /** Epoch-ms start of the oldest hour bucket still retained, or null when empty. */
+  function oldestBucketStart() {
+    let minBucket = null;
+    for (const byHour of _cells.values()) {
+      for (const bucket of byHour.keys()) {
+        if (minBucket === null || bucket < minBucket) minBucket = bucket;
+      }
+    }
+    return minBucket === null ? null : minBucket * HOUR_MS;
   }
 
   async function pollOneAnchor([lat, lon]) {
@@ -282,11 +308,20 @@ export function gpsInterferenceProxy() {
     _lastClientRequestAt = Date.now();
     if (_polling) return;
     _polling = true;
+    // (Re)starting after an idle stop or a process restart: prune first so
+    // any buckets that aged out while nobody was watching don't linger, then
+    // report the window honestly — coverage cannot predate this restart by
+    // more than the data we actually still hold.
+    const now = Date.now();
+    pruneOld(now);
+    const oldest = oldestBucketStart();
+    _coverageSince = oldest === null ? now : Math.max(now, oldest);
     scheduleNextPoll(0);
   }
 
   function buildPayload() {
     const now = Date.now();
+    pruneOld(now);
     const cells = [];
     for (const [ck, byHour] of _cells) {
       const goodHexes = new Set();

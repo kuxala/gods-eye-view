@@ -9,6 +9,13 @@
 
 const SQRT3 = Math.sqrt(3);
 
+/**
+ * Note: `sizeDeg` throughout this module is the hex CIRCUMRADIUS
+ * (center-to-vertex distance), not an edge length or a bounding width — a
+ * pointy-top hex with sizeDeg=0.5 spans less than 1° across. Left as-is per
+ * the brief's "size 0.5° (~50 km)" wording; see gps-interference.js's header.
+ */
+
 /** Axial (q, r) hex center, in [lon, lat] degrees. */
 export function hexCenter(q, r, sizeDeg) {
   const lon = sizeDeg * (SQRT3 * q + (SQRT3 / 2) * r);
