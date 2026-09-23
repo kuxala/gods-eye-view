@@ -4,6 +4,19 @@ import { showInfoCard, hideInfoCard } from '../../ui/msInfoCard.js';
 import { isPointerFree } from '../../data/inputOwnership.js';
 
 const LAYER_ID = 'military-budgets';
+const STYLE_STORAGE_KEY = 'gev:ms:budgets-style';
+const VALID_STYLES = new Set(['drape', 'outline', 'sheet']);
+const OUTLINE_ALTITUDE_M = 2000;
+
+function readStyle() {
+  try {
+    const stored = localStorage.getItem(STYLE_STORAGE_KEY);
+    if (VALID_STYLES.has(stored)) return stored;
+  } catch {
+    // localStorage unavailable — fall through to default.
+  }
+  return 'drape';
+}
 
 // Log-scale bins on 2026 defence spend (USD), warm ramp — no blue/cyan hues.
 const SPEND_BINS = Object.freeze([
@@ -38,6 +51,13 @@ function hierarchyFromRings(rings) {
   );
 }
 
+/** Positions for a single GeoJSON ring, lifted to a fixed altitude (outline style). */
+function outlinePositionsFromRing(ring, heightM) {
+  const flatWithHeights = [];
+  for (const [lon, lat] of ring) flatWithHeights.push(lon, lat, heightM);
+  return Cesium.Cartesian3.fromDegreesArrayHeights(flatWithHeights);
+}
+
 /** Own the military budget choropleth display. */
 export function createMilitaryBudgetsLayer() {
   let _viewer = null;
@@ -50,6 +70,7 @@ export function createMilitaryBudgetsLayer() {
   let _lastError = null;
   let _recordsByEntityId = new Map();
   let _legend = [];
+  let _style = 'drape';
 
   async function fetchJson(url, signal) {
     const response = await fetch(url, { signal });
@@ -57,7 +78,7 @@ export function createMilitaryBudgetsLayer() {
     return response.json();
   }
 
-  function buildEntities(budgets, geo) {
+  function buildEntities(budgets, geo, style) {
     const geoByTopoName = new Map(
       geo.features.map((feature) => [feature.properties.name, feature]),
     );
@@ -96,14 +117,44 @@ export function createMilitaryBudgetsLayer() {
           ? feature.geometry.coordinates
           : [feature.geometry.coordinates];
 
+      if (style === 'outline') {
+        polygons.forEach((rings, polygonIndex) => {
+          rings.forEach((ring, ringIndex) => {
+            const entity = new Cesium.Entity({
+              id: `budget:${country.code}:${polygonIndex}:${ringIndex}`,
+              polyline: {
+                positions: outlinePositionsFromRing(ring, OUTLINE_ALTITUDE_M),
+                width: 2,
+                arcType: Cesium.ArcType.NONE,
+                material: color,
+                disableDepthTestDistance: Number.POSITIVE_INFINITY,
+              },
+            });
+            nextEntities.push(entity);
+            _recordsByEntityId.set(entity.id, country);
+          });
+        });
+        continue;
+      }
+
       polygons.forEach((rings, index) => {
+        const polygonOptions =
+          style === 'sheet'
+            ? {
+                hierarchy: hierarchyFromRings(rings),
+                material: color.withAlpha(0.42),
+                height: 0,
+                perPositionHeight: false,
+                outline: false,
+              }
+            : {
+                hierarchy: hierarchyFromRings(rings),
+                material: color.withAlpha(0.42),
+                classificationType: Cesium.ClassificationType.BOTH,
+              };
         const entity = new Cesium.Entity({
           id: `budget:${country.code}:${index}`,
-          polygon: {
-            hierarchy: hierarchyFromRings(rings),
-            material: color.withAlpha(0.42),
-            classificationType: Cesium.ClassificationType.BOTH,
-          },
+          polygon: polygonOptions,
         });
         nextEntities.push(entity);
         _recordsByEntityId.set(entity.id, country);
@@ -178,6 +229,7 @@ export function createMilitaryBudgetsLayer() {
       _loading = false;
       _enabled = false;
       _lastError = null;
+      _style = readStyle();
     },
 
     enable() {
@@ -209,7 +261,7 @@ export function createMilitaryBudgetsLayer() {
           fetchJson(`${base}ms/countries-110m.geojson`, controller.signal),
         ]);
         if (controller.signal.aborted || _abort !== controller) return false;
-        buildEntities(budgets, geo);
+        buildEntities(budgets, geo, _style);
         _loaded = true;
         _lastError = null;
         return true;
