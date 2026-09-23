@@ -1,0 +1,80 @@
+/* MilitarySpend.org layers (Iran War group) — shared UI. */
+
+/* ms-info-card: shared detail card for all MilitarySpend.org layers. */
+#ms-info-card {
+  position: fixed;
+  bottom: 64px;
+  right: 16px;
+  width: min(320px, calc(100vw - 32px));
+  z-index: 450;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--btn-radius);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  padding: 14px 16px;
+}
+
+#ms-info-card[hidden] {
+  display: none;
+}
+
+.ms-info-card-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ms-info-card-title {
+  margin: 0 24px 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ms-info-card-rows {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 10px;
+  row-gap: 4px;
+  margin-bottom: 8px;
+}
+
+.ms-info-card-row-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.ms-info-card-row-value {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.ms-info-card-note {
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.ms-info-card-link {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.ms-info-card-link:hover {
+  text-decoration: underline;
+}
+
+/* T2 military-budgets */

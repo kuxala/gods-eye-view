@@ -205,6 +205,13 @@ export const DATA_CREDITS = [
       '(ODbL 1.0) + Open Infrastructure Map',
   },
   {
+    key: 'militaryspend-budgets',
+    html:
+      'Military budgets: <a href="https://militaryspend.org/country-profiles" target="_blank" rel="noopener">MilitarySpend.org</a> ' +
+      'country profiles (SIPRI Military Expenditure Database, 2025 actuals) · ' +
+      'boundaries: Natural Earth via world-atlas (public domain)',
+  },
+  {
     key: 'firms',
     html:
       'Active fires: NASA FIRMS — we acknowledge the use of data and/or imagery ' +

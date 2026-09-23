@@ -1607,7 +1607,10 @@
       "src/scenes/sharing.js",
       "src/ui/sceneSharing.js",
       "src/qualityTier.js",
-      "src/qualityWatchdog.js"
+      "src/qualityWatchdog.js",
+      "src/layers/budgets/index.js",
+      "src/app/layers/militaryBudgets.js",
+      "src/ui/msInfoCard.js"
     ],
     "external": [
       "@mapbox/vector-tile",
@@ -1918,7 +1921,10 @@
       "src/sources/overpassFeatures.js",
       "src/sources/featureSource.js",
       "src/sources/overpassRoads.js",
-      "src/qualityTier.js"
+      "src/qualityTier.js",
+      "src/layers/budgets/index.js",
+      "src/app/layers/militaryBudgets.js",
+      "src/ui/msInfoCard.js"
     ],
     "external": [
       "cesium",

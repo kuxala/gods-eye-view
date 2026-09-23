@@ -250,6 +250,7 @@
   "src/splitFlap.js",
   "style.css",
   "src/ui/styles/overlays.css",
+  "src/ui/styles/ms-layers.css",
   "src/ui/styles/command-dock-trays.css",
   "src/ui/styles/location.css",
   "src/ui/styles/recording.css",

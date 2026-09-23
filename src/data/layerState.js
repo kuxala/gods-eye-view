@@ -349,6 +349,11 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled-only',
   }),
   Object.freeze({
+    id: 'military-budgets',
+    token: 'k',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
     id: 'military-installations',
     token: 'i',
     disposition: 'enabled-only',
