@@ -191,7 +191,6 @@ export function createStrikeCandidatesLayer({ feed } = {}) {
           width: DIAMOND_SIZE_PX,
           height: DIAMOND_SIZE_PX,
           verticalOrigin: Cesium.VerticalOrigin.CENTER,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
       });
