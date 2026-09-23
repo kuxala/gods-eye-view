@@ -291,9 +291,10 @@ let _exitFlushArmed = false;
  * Flush on SIGINT/SIGTERM (pm2's stop/restart signals) — `beforeExit` never
  * fires when the process is killed by signal, only on a natural event-loop
  * drain. Uses a synchronous write so it can complete before the process
- * exits, and re-raises the signal with the default handler removed instead
- * of calling process.exit() itself, so it never overrides another listener
- * (Vite's, pm2's) or changes the process's exit code/behaviour.
+ * exits. `once` removes only this listener; other handlers (Vite's
+ * closeServerAndExit, pinokio-start's graceful close) still run their own
+ * shutdown. Only when nobody else listens is the signal re-raised, so the
+ * default termination still happens.
  */
 export function armHormuzBeforeExit() {
   if (_exitFlushArmed) return;
@@ -301,8 +302,9 @@ export function armHormuzBeforeExit() {
   for (const signal of ['SIGINT', 'SIGTERM']) {
     process.once(signal, () => {
       flushHormuzStateSync();
-      process.removeAllListeners(signal);
-      process.kill(process.pid, signal);
+      if (process.listenerCount(signal) === 0) {
+        process.kill(process.pid, signal);
+      }
     });
   }
 }
