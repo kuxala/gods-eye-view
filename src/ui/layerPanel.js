@@ -16,7 +16,7 @@ const FEED_STATE_LABELS = Object.freeze({
 const PANEL_GROUPS = [
   {
     label: 'Iran War',
-    ids: ['military-budgets'],
+    ids: ['iran-war-events', 'military-budgets'],
   },
   {
     label: 'Movement',

@@ -212,6 +212,12 @@ export const DATA_CREDITS = [
       'boundaries: Natural Earth via world-atlas (public domain)',
   },
   {
+    key: 'militaryspend-timeline',
+    html:
+      'Iran war events: <a href="https://militaryspend.org/iran-war-timeline" target="_blank" rel="noopener">MilitarySpend.org war timeline</a> ' +
+      '(event places geocoded by MilitarySpend; approximate where marked)',
+  },
+  {
     key: 'firms',
     html:
       'Active fires: NASA FIRMS — we acknowledge the use of data and/or imagery ' +
