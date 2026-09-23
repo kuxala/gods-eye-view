@@ -19,6 +19,7 @@ const BASE_FILL_COLOR = '#f1e9e4';
 const BASE_OUTLINE_COLOR = '#ec1313';
 const LABEL_TEXT_COLOR = '#f1e9e4';
 const LABEL_BACKGROUND = 'rgba(18,10,10,0.7)';
+const RING_ALTITUDE_M = 5000; // clears the Zagros; plain non-clamped polylines
 const RING_LABEL_DISPLAY_CONDITION = Object.freeze([0, 12_000_000]);
 const BASE_LABEL_DISPLAY_CONDITION = Object.freeze([0, 3_000_000]);
 const ALL_ORIGIN_IDS = Object.freeze(RING_ORIGINS.map((origin) => origin.id));
@@ -146,6 +147,7 @@ export function createMissileRangesLayer() {
           lat: origin.at[0],
           lon: origin.at[1],
           radiusKm: system.rangeKm,
+          heightM: RING_ALTITUDE_M,
         });
         const ringId = `missile-ranges:ring:${system.id}:${origin.id}`;
         const entity = _dataSource.entities.add({
@@ -153,9 +155,9 @@ export function createMissileRangesLayer() {
           polyline: {
             positions,
             width: 2,
-            clampToGround: true,
+            arcType: Cesium.ArcType.NONE,
             material,
-            classificationType: Cesium.ClassificationType.BOTH,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
           },
         });
         const labelId = `missile-ranges:label:${system.id}:${origin.id}`;
@@ -164,6 +166,7 @@ export function createMissileRangesLayer() {
           position: Cesium.Cartesian3.fromDegrees(
             southernmost[1],
             southernmost[0],
+            RING_ALTITUDE_M,
           ),
           label: {
             text: `${system.name} · ${formatKm(system.rangeKm)}`,
@@ -175,7 +178,6 @@ export function createMissileRangesLayer() {
               ...RING_LABEL_DISPLAY_CONDITION,
             ),
             disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           },
         });
         ringEntities.push({
@@ -199,7 +201,6 @@ export function createMissileRangesLayer() {
         point: {
           pixelSize: 6,
           color: Cesium.Color.fromCssColorString(ORIGIN_POINT_COLOR),
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
       });
@@ -217,7 +218,6 @@ export function createMissileRangesLayer() {
           color: Cesium.Color.fromCssColorString(BASE_FILL_COLOR),
           outlineColor: Cesium.Color.fromCssColorString(BASE_OUTLINE_COLOR),
           outlineWidth: 2,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
       });
@@ -234,7 +234,6 @@ export function createMissileRangesLayer() {
             ...BASE_LABEL_DISPLAY_CONDITION,
           ),
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           pixelOffset: new Cesium.Cartesian2(0, -12),
         },
       });
