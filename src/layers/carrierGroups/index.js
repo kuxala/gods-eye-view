@@ -121,6 +121,7 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
   let _count = 0;
   let _recordsByEntityId = new Map();
   let _glyphCanvas = null;
+  let _cardOpen = false;
 
   function glyphImage() {
     if (!_glyphCanvas) _glyphCanvas = buildGlyphCanvas();
@@ -147,6 +148,7 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
         label: 'USNI Fleet Tracker →',
       },
     });
+    _cardOpen = true;
     governorRequestRender('carrier-groups:card');
   }
 
@@ -162,8 +164,9 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
         : null;
       if (record) {
         showGroupCard(record);
-      } else {
+      } else if (_cardOpen) {
         hideInfoCard(LAYER_ID);
+        _cardOpen = false;
         governorRequestRender('carrier-groups:card');
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -176,6 +179,7 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
     const nextRecords = new Map();
     let visibleCount = 0;
     let sawStale = false;
+    let sawExpired = false;
 
     for (const group of data.groups || []) {
       if (!group?.name || !isFiniteLatLon(group.at)) continue;
@@ -183,7 +187,10 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
       if (!asOf) continue;
       const ageMs = now - new Date(`${asOf}T00:00:00Z`).getTime();
       if (!Number.isFinite(ageMs)) continue;
-      if (ageMs > HIDE_MS) continue;
+      if (ageMs > HIDE_MS) {
+        sawExpired = true;
+        continue;
+      }
       const stale = ageMs > STALE_MS;
       if (stale) sawStale = true;
       const alpha = stale ? 0.5 : 1;
@@ -236,7 +243,7 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
     for (const entity of nextEntities) _dataSource.entities.add(entity);
     _recordsByEntityId = nextRecords;
     _count = visibleCount;
-    return { visibleCount, sawStale };
+    return { visibleCount, sawStale, sawExpired };
   }
 
   return {
@@ -264,9 +271,7 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
     enable() {
       _enabled = true;
       if (_dataSource) _dataSource.show = true;
-      // update() short-circuits when the JSON hasn't changed since the last
-      // successful render, so a re-enable needs its own render request.
-      if (_lastUpdate) governorRequestRender('carrier-groups:enable');
+      governorRequestRender('carrier-groups:enable');
     },
 
     disable() {
@@ -275,6 +280,7 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
       _enabled = false;
       if (_dataSource) _dataSource.show = false;
       hideInfoCard(LAYER_ID);
+      _cardOpen = false;
       governorRequestRender('carrier-groups:disable');
     },
 
@@ -301,12 +307,12 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
         }
 
         const data = JSON.parse(raw);
-        const { visibleCount, sawStale } = buildEntities(data);
+        const { visibleCount, sawExpired } = buildEntities(data);
         _lastHash = hash;
         _lastUpdate = Date.now();
         if (!data.groups || data.groups.length === 0 || !data.asOf) {
           _lastError = NO_DATA_ERROR;
-        } else if (visibleCount === 0 && sawStale) {
+        } else if (visibleCount === 0 && sawExpired) {
           _lastError = STALE_ERROR;
         } else {
           _lastError = null;
@@ -326,6 +332,7 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
       _abort?.abort();
       _abort = null;
       hideInfoCard(LAYER_ID);
+      _cardOpen = false;
       if (_handler) {
         _handler.destroy();
         _handler = null;
