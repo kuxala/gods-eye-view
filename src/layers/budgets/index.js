@@ -183,6 +183,9 @@ export function createMilitaryBudgetsLayer() {
     enable() {
       _enabled = true;
       if (_dataSource) _dataSource.show = true;
+      // update() short-circuits once _loaded, so a re-enable after the
+      // first load needs its own render request to show the entities again.
+      if (_loaded) governorRequestRender('military-budgets:enable');
     },
 
     disable() {
