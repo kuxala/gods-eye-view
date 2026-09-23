@@ -54,6 +54,14 @@ export const DATA_CREDITS = [
       'explicit permission of David J Taylor, Edinburgh',
   },
   {
+    key: 'gps-interference',
+    html:
+      'GPS interference grid: derived from ' +
+      '<a href="https://adsb.lol" target="_blank" rel="noopener">adsb.lol</a> ' +
+      'ADS-B data (ODbL 1.0; derived grid also ODbL) · method after ' +
+      '<a href="https://gpsjam.org/faq" target="_blank" rel="noopener">gpsjam.org</a>',
+  },
+  {
     key: 'aisstream',
     html:
       'Live vessels (AIS): ' +

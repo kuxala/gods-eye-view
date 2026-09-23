@@ -16,6 +16,7 @@ import { createApplicationMilitaryBudgets } from './layers/militaryBudgets.js';
 import { createApplicationIranWarEvents } from './layers/iranWarEvents.js';
 import { createApplicationStrikeCandidates } from './layers/strikeCandidates.js';
 import { createApplicationHormuzTransits } from './layers/hormuzTransits.js';
+import { createApplicationGpsInterference } from './layers/gpsInterference.js';
 import { createApplicationMissileRanges } from './layers/missileRanges.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
@@ -111,6 +112,7 @@ export function createApplicationCatalog({
         createApplicationIranWarEvents(),
         createApplicationStrikeCandidates({ feed: sources.firms }),
         createApplicationHormuzTransits(),
+        createApplicationGpsInterference(),
         createApplicationMissileRanges(),
         createApplicationAwareness({
           flights,

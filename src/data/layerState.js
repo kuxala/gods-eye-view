@@ -374,6 +374,11 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled-only',
   }),
   Object.freeze({
+    id: 'gps-interference',
+    token: 'l',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
     id: 'missile-ranges',
     token: 'o',
     disposition: 'enabled-only',

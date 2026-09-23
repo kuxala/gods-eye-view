@@ -21,6 +21,7 @@ const PANEL_GROUPS = [
       'military-budgets',
       'firms-strike-candidates',
       'hormuz-transits',
+      'gps-interference',
       'missile-ranges',
     ],
   },
