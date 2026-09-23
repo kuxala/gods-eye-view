@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { promises as fsp } from 'node:fs';
+import fs, { promises as fsp } from 'node:fs';
 
 /**
  * Hormuz 24h transit counter (T6).
@@ -96,7 +96,7 @@ export function observeHormuzPosition(mmsi, lat, lon, epochMs, type) {
   ) {
     _crossings.push({
       mmsi,
-      at: epochMs,
+      at: Math.min(epochMs, Date.now()),
       direction: previous.zone === 'west' ? 'outbound' : 'inbound',
       typeAtCrossing: normalizedType(type),
     });
@@ -106,7 +106,7 @@ export function observeHormuzPosition(mmsi, lat, lon, epochMs, type) {
   }
   _lastZone.set(mmsi, { zone, at: epochMs });
   _dirty = true;
-  scheduleDiskWrite();
+  if (_diskLoaded) scheduleDiskWrite();
 }
 
 /**
@@ -177,22 +177,43 @@ export function hormuzTransitSummary(now, resolveType) {
   };
 }
 
-/** Load persisted state once (idempotent, safe to call repeatedly). */
+/**
+ * Load persisted state once (idempotent, safe to call repeatedly). MERGES
+ * disk crossings into whatever this process has already observed since boot
+ * (ingest starts at server setup, before any route calls this) rather than
+ * replacing in-memory state wholesale — otherwise crossings seen between
+ * process start and the first /hormuz request would be dropped. No save is
+ * allowed before this resolves (see `_diskLoaded` guard in
+ * observeHormuzPosition/scheduleDiskWrite), so a fast first-fix write can
+ * never clobber the on-disk history with a near-empty snapshot.
+ */
 export async function loadHormuzState() {
   if (_diskLoaded) return;
   if (!_diskLoadPromise) {
     _diskLoadPromise = (async () => {
       try {
         const parsed = JSON.parse(await fsp.readFile(CACHE_PATH, 'utf8'));
-        if (Array.isArray(parsed?.crossings)) {
-          _crossings = parsed.crossings.filter(
-            (crossing) =>
-              crossing &&
-              typeof crossing.mmsi === 'string' &&
-              Number.isFinite(crossing.at) &&
-              (crossing.direction === 'inbound' ||
-                crossing.direction === 'outbound'),
+        const diskCrossings = Array.isArray(parsed?.crossings)
+          ? parsed.crossings.filter(
+              (crossing) =>
+                crossing &&
+                typeof crossing.mmsi === 'string' &&
+                Number.isFinite(crossing.at) &&
+                (crossing.direction === 'inbound' ||
+                  crossing.direction === 'outbound'),
+            )
+          : [];
+        if (diskCrossings.length) {
+          const seen = new Set(
+            _crossings.map((c) => `${c.mmsi}:${c.at}:${c.direction}`),
           );
+          for (const crossing of diskCrossings) {
+            const dedupeKey = `${crossing.mmsi}:${crossing.at}:${crossing.direction}`;
+            if (seen.has(dedupeKey)) continue;
+            seen.add(dedupeKey);
+            _crossings.push(crossing);
+          }
+          _crossings.sort((a, b) => a.at - b.at);
         }
         if (Array.isArray(parsed?.lastZone)) {
           for (const [mmsi, entry] of parsed.lastZone) {
@@ -200,14 +221,19 @@ export async function loadHormuzState() {
               typeof mmsi === 'string' &&
               entry &&
               (entry.zone === 'west' || entry.zone === 'east') &&
-              Number.isFinite(entry.at)
+              Number.isFinite(entry.at) &&
+              // In-memory (post-boot) observations win over stale disk state.
+              !_lastZone.has(mmsi)
             )
               _lastZone.set(mmsi, entry);
           }
         }
         if (Number.isFinite(parsed?.trackingSince))
-          _trackingSince = parsed.trackingSince;
-        else if (_crossings.length)
+          _trackingSince =
+            _trackingSince === null
+              ? parsed.trackingSince
+              : Math.min(_trackingSince, parsed.trackingSince);
+        else if (_crossings.length && _trackingSince === null)
           _trackingSince = Math.min(..._crossings.map((c) => c.at));
       } catch {
         /* no disk cache yet */
@@ -220,15 +246,18 @@ export async function loadHormuzState() {
   await _diskLoadPromise;
 }
 
-/** Persist current state to disk. Also called on process beforeExit. */
+/** Persist current state to disk. Also called on SIGINT/SIGTERM flush. */
 export async function saveHormuzState() {
-  if (!_dirty) return;
+  if (!_diskLoaded || !_dirty) return;
   _dirty = false;
   _lastDiskWriteAt = Date.now();
   try {
     await fsp.mkdir(CACHE_DIR, { recursive: true });
+    // Atomic write: a crash/restart mid-write must never leave a truncated
+    // or half-written cache file behind for loadHormuzState() to choke on.
+    const tmpPath = `${CACHE_PATH}.tmp-${process.pid}`;
     await fsp.writeFile(
-      CACHE_PATH,
+      tmpPath,
       JSON.stringify({
         crossings: _crossings,
         lastZone: [..._lastZone.entries()],
@@ -236,6 +265,7 @@ export async function saveHormuzState() {
       }),
       'utf8',
     );
+    await fsp.rename(tmpPath, CACHE_PATH);
   } catch (err) {
     console.warn('[hormuz-transits] cache write failed:', err?.message || err);
   }
@@ -256,11 +286,45 @@ function scheduleDiskWrite() {
   _diskWriteTimer.unref?.();
 }
 
-let _beforeExitArmed = false;
+let _exitFlushArmed = false;
+/**
+ * Flush on SIGINT/SIGTERM (pm2's stop/restart signals) — `beforeExit` never
+ * fires when the process is killed by signal, only on a natural event-loop
+ * drain. Uses a synchronous write so it can complete before the process
+ * exits, and re-raises the signal with the default handler removed instead
+ * of calling process.exit() itself, so it never overrides another listener
+ * (Vite's, pm2's) or changes the process's exit code/behaviour.
+ */
 export function armHormuzBeforeExit() {
-  if (_beforeExitArmed) return;
-  _beforeExitArmed = true;
-  process.once('beforeExit', () => {
-    saveHormuzState();
-  });
+  if (_exitFlushArmed) return;
+  _exitFlushArmed = true;
+  for (const signal of ['SIGINT', 'SIGTERM']) {
+    process.once(signal, () => {
+      flushHormuzStateSync();
+      process.removeAllListeners(signal);
+      process.kill(process.pid, signal);
+    });
+  }
+}
+
+/** Synchronous, best-effort, atomic flush used only by the signal handlers above. */
+function flushHormuzStateSync() {
+  if (!_diskLoaded || !_dirty) return;
+  try {
+    fs.mkdirSync(CACHE_DIR, { recursive: true });
+    const tmpPath = `${CACHE_PATH}.tmp-${process.pid}`;
+    fs.writeFileSync(
+      tmpPath,
+      JSON.stringify({
+        crossings: _crossings,
+        lastZone: [..._lastZone.entries()],
+        trackingSince: _trackingSince,
+      }),
+      'utf8',
+    );
+    fs.renameSync(tmpPath, CACHE_PATH);
+    _dirty = false;
+  } catch (err) {
+    console.warn('[hormuz-transits] signal flush failed:', err?.message || err);
+  }
 }

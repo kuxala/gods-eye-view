@@ -191,6 +191,11 @@ export function aisLiveProxy() {
     configureServer(server) {
       install(server.middlewares);
       startAisStreamWatchdogTick();
+      // Load Hormuz disk state before AIS ingest can observe a single fix —
+      // ingest starts at server setup, not from the /hormuz route, so
+      // loading late let the first in-zone fix's disk write clobber history.
+      loadHormuzState();
+      armHormuzBeforeExit();
       // Vite restarts the server in-process on a config change while this
       // module's state survives; without teardown each reload stacks another
       // interval and another socket.
@@ -199,6 +204,8 @@ export function aisLiveProxy() {
     configurePreviewServer(server) {
       install(server.middlewares);
       startAisStreamWatchdogTick();
+      loadHormuzState();
+      armHormuzBeforeExit();
       server.httpServer?.on('close', disposeAisStream);
     },
     // Middleware-mode backstop: there is no httpServer to hang 'close' on.
