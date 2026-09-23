@@ -116,6 +116,22 @@ transaction quota. Requires a free `FIRMS_MAP_KEY`
 (https://firms.modaps.eosdis.nasa.gov/api/map_key/); the layer is empty without it.
 The former bundled 2026-05-25 snapshot was removed 2026-07-16.
 
+**T4b persistent-flare mask** (`GET /api/firms/persistent`, `server/providers/firms.js`):
+a separate, once-per-24h regional fetch against FIRMS' area-CSV endpoint
+(firms.modaps.eosdis.nasa.gov/api/area/) covering the wider Gulf/Hormuz/Levant region
+(`PERSISTENT_BBOX`) at `DAY_RANGE=5` (the area-CSV endpoint's max — not 7), binned into
+0.02° cells. A cell is flagged "persistent" once it's been seen on >= 4 distinct days —
+i.e. a standing gas flare or industrial hotspot, not a strike. Disk-cached
+(`.gev-cache/firms-persistent.json`, `PERSISTENT_TTL_MS` = 24h) so a server restart doesn't
+re-spend the shared MAP_KEY quota. Same CC0/public-domain terms and NASA FIRMS
+acknowledgement as the live-fires feed above.
+
+**Strike-candidates layer** (`src/layers/strikeCandidates/index.js`): reuses the live
+`/api/firms` trailing-24h VIIRS feed, restricted to the Iran-war region set
+(`src/layers/strikeCandidates/regions.js`), and suppresses any hotspot that falls in a
+persistent-flare cell from the T4b mask above — flagged in the UI as heuristic/unverified
+(flares and crop fires can still slip through; this is not strike confirmation).
+
 ### Natural Earth physical regions (`natural_earth/`)
 
 Curated from the **Natural Earth 10m physical vectors** (https://www.naturalearthdata.com/ —

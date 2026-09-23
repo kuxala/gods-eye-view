@@ -57,7 +57,7 @@ export function createHormuzTransitsLayer({ fetchImpl = fetch } = {}) {
   let _lastError = null;
   let _lastUpdate = null;
   let _keyRequired = false;
-  let _zonesBuilt = false;
+  let _zonesKey = null; // JSON of the zones config currently drawn; rebuild only when it changes
   let _summary = null;
   let _chipEl = null;
 
@@ -111,65 +111,50 @@ export function createHormuzTransitsLayer({ fetchImpl = fetch } = {}) {
     _chipEl.title = CAVEAT;
   }
 
-  function buildZones() {
-    if (_zonesBuilt || !_dataSource) return;
-    _dataSource.entities.add(
-      new Cesium.Entity({
-        id: `${LAYER_ID}:zone:west`,
-        polyline: {
-          positions: rectangleOutline([25.9, 55.55, 26.9, 56.2]),
-          width: 2,
-          material: new Cesium.PolylineDashMaterialProperty({
-            color: ZONE_COLOR,
-            dashLength: 12,
-          }),
-          clampToGround: true,
-        },
-      }),
-    );
-    _dataSource.entities.add(
-      new Cesium.Entity({
-        id: `${LAYER_ID}:label:west`,
-        position: rectangleCenter([25.9, 55.55, 26.9, 56.2]),
-        label: {
-          text: 'WEST GATE',
-          font: '11px monospace',
-          fillColor: ZONE_COLOR,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          verticalOrigin: Cesium.VerticalOrigin.CENTER,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-        },
-      }),
-    );
-    _dataSource.entities.add(
-      new Cesium.Entity({
-        id: `${LAYER_ID}:zone:east`,
-        polyline: {
-          positions: rectangleOutline([25.4, 56.55, 26.5, 57.4]),
-          width: 2,
-          material: new Cesium.PolylineDashMaterialProperty({
-            color: ZONE_COLOR,
-            dashLength: 12,
-          }),
-          clampToGround: true,
-        },
-      }),
-    );
-    _dataSource.entities.add(
-      new Cesium.Entity({
-        id: `${LAYER_ID}:label:east`,
-        position: rectangleCenter([25.4, 56.55, 26.5, 57.4]),
-        label: {
-          text: 'EAST GATE',
-          font: '11px monospace',
-          fillColor: ZONE_COLOR,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          verticalOrigin: Cesium.VerticalOrigin.CENTER,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-        },
-      }),
-    );
-    _zonesBuilt = true;
+  /**
+   * Draw the gate zone outlines from the server's /api/ais-live/hormuz
+   * `summary.zones` payload (server/providers/vessels/hormuz-transits.js's
+   * HORMUZ_ZONES) instead of a duplicated hardcoded copy here, so there's
+   * one source of truth. Rebuilds only when the zones config actually
+   * changes (compared by value), not on every update().
+   */
+  function buildZonesFromSummary(zones) {
+    if (!zones || !_dataSource) return;
+    const key = JSON.stringify(zones);
+    if (key === _zonesKey) return;
+    _dataSource.entities.removeAll();
+    for (const [name, box] of Object.entries(zones)) {
+      _dataSource.entities.add(
+        new Cesium.Entity({
+          id: `${LAYER_ID}:zone:${name}`,
+          polyline: {
+            positions: rectangleOutline(box),
+            width: 2,
+            material: new Cesium.PolylineDashMaterialProperty({
+              color: ZONE_COLOR,
+              dashLength: 12,
+            }),
+            clampToGround: true,
+          },
+        }),
+      );
+      _dataSource.entities.add(
+        new Cesium.Entity({
+          id: `${LAYER_ID}:label:${name}`,
+          position: rectangleCenter(box),
+          label: {
+            text: `${name.toUpperCase()} GATE`,
+            font: '11px monospace',
+            fillColor: ZONE_COLOR,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            verticalOrigin: Cesium.VerticalOrigin.CENTER,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          },
+        }),
+      );
+    }
+    _zonesKey = key;
+    governorRequestRender('hormuz-transits:zones');
   }
 
   return {
@@ -191,13 +176,17 @@ export function createHormuzTransitsLayer({ fetchImpl = fetch } = {}) {
       _lastError = null;
       _lastUpdate = null;
       _keyRequired = false;
+      _zonesKey = null;
       _summary = null;
     },
 
     enable() {
       _enabled = true;
       if (_dataSource) _dataSource.show = true;
-      buildZones();
+      // Zones only known once the first summary has arrived; if we already
+      // have one (re-enable case), redraw immediately instead of waiting for
+      // the next update() tick.
+      if (_summary?.zones) buildZonesFromSummary(_summary.zones);
       ensureChip();
       renderChip();
       // Zone entities are built once and update() always returns false (it's
@@ -241,9 +230,10 @@ export function createHormuzTransitsLayer({ fetchImpl = fetch } = {}) {
         _summary = await response.json();
         _lastUpdate = Date.now();
         _lastError = null;
+        if (_summary?.zones) buildZonesFromSummary(_summary.zones);
         renderChip();
-        // Chip text is DOM-only; zone entities never change post-build, so
-        // no scene render is needed here.
+        // Chip text is DOM-only; zone entities only change (and render) via
+        // buildZonesFromSummary above when the zones config itself changes.
         return false;
       } catch (error) {
         if (controller.signal.aborted || _abort !== controller) return false;
@@ -263,7 +253,7 @@ export function createHormuzTransitsLayer({ fetchImpl = fetch } = {}) {
       _dataSource = null;
       _viewer = null;
       _enabled = false;
-      _zonesBuilt = false;
+      _zonesKey = null;
       _summary = null;
       _lastUpdate = null;
       _lastError = null;
