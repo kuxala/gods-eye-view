@@ -14,6 +14,7 @@ import { createApplicationFirms } from './layers/firms.js';
 import { createApplicationEarthquakes } from './layers/earthquakes.js';
 import { createApplicationMilitaryBudgets } from './layers/militaryBudgets.js';
 import { createApplicationIranWarEvents } from './layers/iranWarEvents.js';
+import { createApplicationStrikeCandidates } from './layers/strikeCandidates.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
 import { createBhoteKoshiEventLayer } from '../data/bhoteKoshiEvent.js';
@@ -106,6 +107,7 @@ export function createApplicationCatalog({
         installations,
         militaryBudgets,
         createApplicationIranWarEvents(),
+        createApplicationStrikeCandidates({ feed: sources.firms }),
         createApplicationAwareness({
           flights,
           military,
