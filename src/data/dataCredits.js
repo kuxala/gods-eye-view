@@ -218,6 +218,12 @@ export const DATA_CREDITS = [
       '(event places geocoded by MilitarySpend; approximate where marked)',
   },
   {
+    key: 'csis-missile-threat',
+    html:
+      'Missile ranges: <a href="https://missilethreat.csis.org/country/iran/" target="_blank" rel="noopener">CSIS Missile Defense Project</a> ' +
+      '(open-source estimates) · US base locations: public sources, approximate',
+  },
+  {
     key: 'firms',
     html:
       'Active fires: NASA FIRMS — we acknowledge the use of data and/or imagery ' +
