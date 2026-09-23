@@ -20,6 +20,7 @@ const PANEL_GROUPS = [
       'iran-war-events',
       'military-budgets',
       'firms-strike-candidates',
+      'hormuz-transits',
       'missile-ranges',
     ],
   },

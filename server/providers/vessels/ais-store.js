@@ -1,4 +1,5 @@
 import { isRecognizedAisEnvelope } from '../../../src/data/aisStreamAdapter.js';
+import { observeHormuzPosition } from './hormuz-transits.js';
 export const AISSTREAM_CACHE_MAX = 50000;
 export const AISSTREAM_STALE_MS = 30 * 60 * 1000;
 // Per-MMSI recent-path ring buffers (PRD WS-F F3). Float32 lat/lon (~1m
@@ -84,15 +85,33 @@ export function ingestAisStreamEnvelope(envelope) {
     _updatedAt: Date.now(),
   });
 
-  appendAisTrackSample(
+  const fixEpochSec = aisEpochSeconds(metadata.time_utc ?? metadata.TimeUtc);
+  appendAisTrackSample(mmsi, lat, lon, fixEpochSec);
+
+  // Hormuz 24h transit counter (T6) — fed from the fix's own epoch, not
+  // wall-clock ingest time. Cheap-rejects outside the strait itself.
+  observeHormuzPosition(
     mmsi,
     lat,
     lon,
-    aisEpochSeconds(metadata.time_utc ?? metadata.TimeUtc),
+    fixEpochSec * 1000,
+    _aisStreamVessels.get(mmsi)?.type,
   );
 
   pruneAisStreamCache();
   return true;
+}
+
+/**
+ * Resolve a vessel's type for Hormuz-summary purposes: prefer the live
+ * static-report cache (a crossing can be reclassified once static data
+ * arrives), falling back to the type captured at crossing time.
+ * @param {string} mmsi
+ * @param {string} fallbackType
+ * @returns {string}
+ */
+export function resolveVesselTypeForHormuz(mmsi, fallbackType) {
+  return _aisStreamStatic.get(mmsi)?.type || fallbackType;
 }
 
 /**

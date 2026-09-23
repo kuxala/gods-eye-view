@@ -10,7 +10,13 @@ import {
   readAisTrack,
   aisStreamRows,
   newestAisPositionAt,
+  resolveVesselTypeForHormuz,
 } from './ais-store.js';
+import {
+  hormuzTransitSummary,
+  loadHormuzState,
+  armHormuzBeforeExit,
+} from './hormuz-transits.js';
 // ---------------------------------------------------------------------------
 // AISStream live vessel cache state
 // ---------------------------------------------------------------------------
@@ -102,6 +108,34 @@ export function aisLiveProxy() {
               samples: readAisTrack(mmsi),
               source: 'AISStream (accumulated since server start)',
               retainedSec: Math.floor(AISSTREAM_STALE_MS / 1000),
+            }),
+          );
+          return;
+        }
+
+        // Hormuz transit counter (T6) MUST be handled before the rows
+        // snapshot below, same prefix-match caveat as /track above.
+        if (incoming.pathname === '/hormuz') {
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-store');
+          if (!process.env.AISSTREAM_API_KEY) {
+            res.statusCode = 503;
+            res.end(JSON.stringify({ error: 'no_key' }));
+            return;
+          }
+          await loadHormuzState();
+          armHormuzBeforeExit();
+          const feed = aisStreamStatusSnapshot();
+          const summary = hormuzTransitSummary(
+            Date.now(),
+            resolveVesselTypeForHormuz,
+          );
+          res.statusCode = 200;
+          res.end(
+            JSON.stringify({
+              ...summary,
+              feed: { status: feed.status },
+              method: 'zone side-change, AISStream terrestrial AIS',
             }),
           );
           return;

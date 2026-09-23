@@ -369,6 +369,11 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled-only',
   }),
   Object.freeze({
+    id: 'hormuz-transits',
+    token: 'u',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
     id: 'missile-ranges',
     token: 'o',
     disposition: 'enabled-only',

@@ -15,6 +15,7 @@ import { createApplicationEarthquakes } from './layers/earthquakes.js';
 import { createApplicationMilitaryBudgets } from './layers/militaryBudgets.js';
 import { createApplicationIranWarEvents } from './layers/iranWarEvents.js';
 import { createApplicationStrikeCandidates } from './layers/strikeCandidates.js';
+import { createApplicationHormuzTransits } from './layers/hormuzTransits.js';
 import { createApplicationMissileRanges } from './layers/missileRanges.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
@@ -109,6 +110,7 @@ export function createApplicationCatalog({
         militaryBudgets,
         createApplicationIranWarEvents(),
         createApplicationStrikeCandidates({ feed: sources.firms }),
+        createApplicationHormuzTransits(),
         createApplicationMissileRanges(),
         createApplicationAwareness({
           flights,
