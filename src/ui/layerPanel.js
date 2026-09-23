@@ -23,6 +23,7 @@ const PANEL_GROUPS = [
       'hormuz-transits',
       'gps-interference',
       'missile-ranges',
+      'carrier-groups',
     ],
   },
   {

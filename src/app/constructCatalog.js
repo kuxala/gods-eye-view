@@ -18,6 +18,7 @@ import { createApplicationStrikeCandidates } from './layers/strikeCandidates.js'
 import { createApplicationHormuzTransits } from './layers/hormuzTransits.js';
 import { createApplicationGpsInterference } from './layers/gpsInterference.js';
 import { createApplicationMissileRanges } from './layers/missileRanges.js';
+import { createApplicationCarrierGroups } from './layers/carrierGroups.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
 import { createBhoteKoshiEventLayer } from '../data/bhoteKoshiEvent.js';
@@ -114,6 +115,7 @@ export function createApplicationCatalog({
         createApplicationHormuzTransits(),
         createApplicationGpsInterference(),
         createApplicationMissileRanges(),
+        createApplicationCarrierGroups(),
         createApplicationAwareness({
           flights,
           military,

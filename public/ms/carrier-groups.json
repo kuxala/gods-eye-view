@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "asOf": null,
+  "source": {
+    "name": "USNI News Fleet and Marine Tracker",
+    "url": null
+  },
+  "note": "Positions are the sea area USNI reports, placed at a representative point — not a precise location.",
+  "groups": []
+}

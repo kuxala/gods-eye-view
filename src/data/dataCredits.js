@@ -226,6 +226,12 @@ export const DATA_CREDITS = [
       '(event places geocoded by MilitarySpend; approximate where marked)',
   },
   {
+    key: 'usni-fleet-tracker',
+    html:
+      'Carrier group areas: <a href="https://news.usni.org/category/fleet-tracker" target="_blank" rel="noopener">USNI News Fleet and Marine Tracker</a> ' +
+      '(manually transcribed; approximate)',
+  },
+  {
     key: 'csis-missile-threat',
     html:
       'Missile ranges: <a href="https://missilethreat.csis.org/country/iran/" target="_blank" rel="noopener">CSIS Missile Defense Project</a> ' +
