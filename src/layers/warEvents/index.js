@@ -44,13 +44,24 @@ function formatEventDate(epochMs) {
   });
 }
 
+/** Cheap change check: row count plus the last row's date/title. */
+function rowsChanged(previousRows, nextRows) {
+  if (!Array.isArray(previousRows)) return true;
+  if (previousRows.length !== nextRows.length) return true;
+  const prevLast = previousRows[previousRows.length - 1];
+  const nextLast = nextRows[nextRows.length - 1];
+  return (
+    prevLast?.date !== nextLast?.date || prevLast?.title !== nextLast?.title
+  );
+}
+
 /** Build the placed-event index: one entity spec per (row, place) pair matched by date + title prefix. */
 function buildPlacedEvents(rows) {
   const entries = [];
   let unplaced = 0;
-  for (const row of rows) {
+  rows.forEach((row, rowIndex) => {
     const epochMs = parseEventDate(row.date);
-    if (epochMs == null) continue;
+    if (epochMs == null) return;
     const rowDate = normDate(row.date);
     const rowTitle = normTitle(row.title);
     const entry = IRAN_WAR_EVENT_PLACES.find(
@@ -60,11 +71,14 @@ function buildPlacedEvents(rows) {
     );
     if (!entry) {
       unplaced++;
-      continue;
+      return;
     }
     entry.places.forEach((place, placeIndex) => {
       entries.push({
-        id: `iran-war-events:${rowDate}:${normTitle(entry.title)}:${placeIndex}`,
+        // rowIndex disambiguates two different timeline rows that resolve
+        // to the same place entry (same date:normTitle match) — without it
+        // their ids collide and Cesium's entities.add() throws forever.
+        id: `iran-war-events:${rowDate}:${normTitle(entry.title)}:${placeIndex}:${rowIndex}`,
         epochMs,
         title: row.title,
         description: row.description,
@@ -73,7 +87,7 @@ function buildPlacedEvents(rows) {
         place,
       });
     });
-  }
+  });
   return { entries, unplaced };
 }
 
@@ -95,6 +109,7 @@ export function createIranWarEventsLayer({ source } = {}) {
   let _distinctDates = []; // sorted ascending, distinct epoch ms
   let _unplaced = 0;
   let _legend = [];
+  let _lastRows = null; // most recent snapshot, for the cheap update() diff
 
   // Scrubber DOM + state.
   let _scrubberEl = null;
@@ -294,11 +309,17 @@ export function createIranWarEventsLayer({ source } = {}) {
 
     const stackCounts = new Map();
     const nextEntities = [];
+    const seenIds = new Set();
     const legendCounts = new Map(
       Object.keys(KIND_COLORS).map((kind) => [kind, 0]),
     );
 
     for (const event of entries) {
+      // Belt-and-suspenders: buildPlacedEvents ids are already unique, but a
+      // duplicate id reaching entities.add() throws forever, so skip rather
+      // than trust the upstream guard alone.
+      if (seenIds.has(event.id)) continue;
+      seenIds.add(event.id);
       const [lat, lon] = event.place.at;
       const key = `${lat.toFixed(2)},${lon.toFixed(2)}`;
       const stackIndex = stackCounts.get(key) || 0;
@@ -383,21 +404,45 @@ export function createIranWarEventsLayer({ source } = {}) {
     },
 
     async update() {
-      if (!_enabled || _loaded || _loading) return false;
+      // The timeline changes daily; re-fetch once the update interval has
+      // elapsed instead of short-circuiting forever after the first load.
+      if (!_enabled || _loading) return false;
+      if (
+        _loaded &&
+        _lastUpdate !== null &&
+        Date.now() - _lastUpdate < this.updateInterval
+      )
+        return false;
       _loading = true;
       const controller = new AbortController();
       _abort = controller;
       try {
         const rows = await source.getSnapshot({ signal: controller.signal });
         if (controller.signal.aborted || _abort !== controller) return false;
-        _entities = [];
-        buildEntities(rows);
-        _loaded = true;
+        const changed = !_loaded || rowsChanged(_lastRows, rows);
+        _lastRows = rows;
         _lastUpdate = Date.now();
         _lastError = null;
-        if (_scrubberEl && _distinctDates.length)
-          scrubTo(_distinctDates.length - 1, { requestRender: false });
-        return true;
+        if (changed) {
+          const previousScrubDate = currentScrubDate();
+          _entities = [];
+          buildEntities(rows);
+          // Keep the scrubber on the same date when possible (a rebuild from
+          // an unchanged-but-refetched payload shouldn't jump the user back
+          // to "latest"); fall back to latest when that date is gone.
+          const keepIndex =
+            previousScrubDate == null
+              ? -1
+              : _distinctDates.indexOf(previousScrubDate);
+          if (_scrubberEl && _distinctDates.length) {
+            scrubTo(keepIndex >= 0 ? keepIndex : _distinctDates.length - 1, {
+              requestRender: false,
+            });
+          }
+          governorRequestRender('iran-war-events:update');
+        }
+        _loaded = true;
+        return changed;
       } catch (error) {
         if (controller.signal.aborted || _abort !== controller) return false;
         console.warn('[Data:IranWarEvents] Fetch error:', error);
@@ -425,6 +470,7 @@ export function createIranWarEventsLayer({ source } = {}) {
       _viewer = null;
       _entities = [];
       _distinctDates = [];
+      _lastRows = null;
       _loaded = false;
       _enabled = false;
     },

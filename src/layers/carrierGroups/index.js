@@ -199,6 +199,9 @@ export function createCarrierGroupsLayer({ fetchImpl = fetch } = {}) {
       const position = Cesium.Cartesian3.fromDegrees(lon, lat);
       const labelText = `${shortName(group.name)} · ${group.area || 'Unknown'} · ${formatShortDate(asOf)}${stale ? ' (stale)' : ''}`;
       const entityId = `carrier-groups:${group.id || group.name}`;
+      // Two owner-authored rows sharing an id/name would collide and
+      // entities.add() throws forever — skip the duplicate.
+      if (nextRecords.has(entityId)) continue;
 
       const entity = new Cesium.Entity({
         id: entityId,

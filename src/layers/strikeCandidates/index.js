@@ -94,7 +94,6 @@ export function createStrikeCandidatesLayer({ feed } = {}) {
 
   async function fetchPersistentMask(signal) {
     if (_persistentFetched) return;
-    _persistentFetched = true;
     try {
       const response = await fetch('/api/firms/persistent', {
         signal,
@@ -104,9 +103,13 @@ export function createStrikeCandidatesLayer({ feed } = {}) {
       const payload = await response.json();
       if (Array.isArray(payload?.cells))
         _persistentCells = new Set(payload.cells);
+      // Only mark fetched on success — a failed/aborted first fetch must
+      // leave the mask empty but retry-able on the next update(), not stuck
+      // empty for the rest of the session.
+      _persistentFetched = true;
     } catch {
       // Keyless / upstream down / network error — mask stays empty, the
-      // layer still works, it just doesn't suppress flares.
+      // layer still works, it just doesn't suppress flares; will retry.
     }
   }
 
@@ -173,10 +176,13 @@ export function createStrikeCandidatesLayer({ feed } = {}) {
     let highCount = 0;
     let lowCount = 0;
     for (const fire of kept) {
+      const id = `firms-strike:${fire.lat.toFixed(4)},${fire.lon.toFixed(4)},${fire.acqMs}`;
+      // Two fires rounding to the same lat/lon/acqMs would collide and
+      // entities.add() throws forever — skip the duplicate.
+      if (nextRecords.has(id)) continue;
       const low = fire.confidence < 0.5;
       if (low) lowCount++;
       else highCount++;
-      const id = `firms-strike:${fire.lat.toFixed(4)},${fire.lon.toFixed(4)},${fire.acqMs}`;
       const entity = new Cesium.Entity({
         id,
         position: Cesium.Cartesian3.fromDegrees(fire.lon, fire.lat),
