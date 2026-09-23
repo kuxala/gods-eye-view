@@ -200,10 +200,10 @@ export function createHormuzTransitsLayer({ fetchImpl = fetch } = {}) {
       buildZones();
       ensureChip();
       renderChip();
-      // Zone entities are built once and never change after that, so
-      // update() won't request a render if the summary was already loaded —
-      // this covers the re-enable case per the T2 lesson.
-      if (_lastUpdate) governorRequestRender('hormuz-transits:enable');
+      // Zone entities are built once and update() always returns false (it's
+      // DOM-only), so neither the first build nor a re-enable ever triggers
+      // a render on its own — always request one here after the scene change.
+      governorRequestRender('hormuz-transits:enable');
     },
 
     disable() {
