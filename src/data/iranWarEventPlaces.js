@@ -7,7 +7,11 @@
 //
 // [lat, lon]; c: H (named place, reliable) | A (approximate/centroid) |
 // U (uncertain — text only names a region/sea; render hollow).
-// kind: us-strike | iran-attack | maritime | diplomacy | loss.
+// kind: us-strike | israel-strike | iran-attack (incl. Hezbollah/Houthi) |
+// maritime | diplomacy | loss | unattributed. A place may carry its own
+// `kind` when one row pins both sides' actions. Re-tagged 2026-09-26 against
+// each row's description: Israeli strikes, toll reports and a UN report were
+// tagged us-strike.
 export const IRAN_WAR_EVENT_PLACES = Object.freeze([
   {
     date: 'Feb 28, 2026',
@@ -54,7 +58,7 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
   {
     date: 'Mar 26, 2026',
     title: 'IRGC Navy cmdr Tangsiri killed',
-    kind: 'us-strike',
+    kind: 'israel-strike',
     places: [{ name: 'Bandar Abbas', at: [27.183, 56.267], c: 'H' }],
   },
   {
@@ -99,7 +103,7 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
   {
     date: 'May 6, 2026',
     title: 'Israel assassinates Hezbollah Radwan',
-    kind: 'us-strike',
+    kind: 'israel-strike',
     places: [{ name: 'Haret Hreik, Beirut', at: [33.851, 35.508], c: 'A' }],
   },
   {
@@ -111,7 +115,7 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
   {
     date: 'May 18, 2026',
     title: 'Lebanon toll passes 3,000',
-    kind: 'us-strike',
+    kind: 'israel-strike',
     places: [{ name: 'Baalbek district', at: [34.006, 36.211], c: 'A' }],
   },
   {
@@ -132,13 +136,18 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
     kind: 'iran-attack',
     places: [
       { name: 'Kuwait International Airport', at: [29.241, 47.969], c: 'H' },
-      { name: 'Qeshm Island (US strike)', at: [26.8, 55.95], c: 'A' },
+      {
+        name: 'Qeshm Island (US strike)',
+        at: [26.8, 55.95],
+        c: 'A',
+        kind: 'us-strike',
+      },
     ],
   },
   {
     date: 'Jun 4, 2026',
     title: 'Lebanese MoH toll reaches 3,516',
-    kind: 'us-strike',
+    kind: 'israel-strike',
     places: [
       { name: 'Nabatieh', at: [33.378, 35.484], c: 'H' },
       { name: 'Sidon', at: [33.563, 35.369], c: 'H' },
@@ -192,7 +201,7 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
   {
     date: 'Jun 14-15, 2026',
     title: 'Trump declares deal now complete',
-    kind: 'us-strike',
+    kind: 'israel-strike',
     places: [{ name: 'Ghobeiri, Beirut', at: [33.866, 35.5], c: 'A' }],
   },
   {
@@ -207,7 +216,7 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
     kind: 'diplomacy',
     places: [
       { name: 'Versailles', at: [48.805, 2.12], c: 'H' },
-      { name: 'Nabatieh', at: [33.378, 35.484], c: 'H' },
+      { name: 'Nabatieh', at: [33.378, 35.484], c: 'H', kind: 'israel-strike' },
     ],
   },
   {
@@ -254,7 +263,12 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
     kind: 'maritime',
     places: [
       { name: 'M/T Kiku, approach to Fujairah', at: [25.3, 56.7], c: 'U' },
-      { name: 'CENTCOM strikes near Hormuz', at: [26.95, 56.1], c: 'U' },
+      {
+        name: 'CENTCOM strikes near Hormuz',
+        at: [26.95, 56.1],
+        c: 'U',
+        kind: 'us-strike',
+      },
     ],
   },
   {
@@ -375,7 +389,12 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
       { name: 'Prince Hassan AB (H5), Jordan', at: [32.16, 37.149], c: 'A' },
       { name: 'Port of Duqm, Oman', at: [19.66, 57.71], c: 'A' },
       { name: 'Ali Al Salem AB, Kuwait', at: [29.347, 47.521], c: 'H' },
-      { name: 'Mahshahr (US strike)', at: [30.558, 49.198], c: 'H' },
+      {
+        name: 'Mahshahr (US strike)',
+        at: [30.558, 49.198],
+        c: 'H',
+        kind: 'us-strike',
+      },
     ],
   },
   {
@@ -417,7 +436,12 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
         at: [31.827, 36.782],
         c: 'H',
       },
-      { name: 'Yazd (US strike)', at: [31.897, 54.357], c: 'H' },
+      {
+        name: 'Yazd (US strike)',
+        at: [31.897, 54.357],
+        c: 'H',
+        kind: 'us-strike',
+      },
     ],
   },
   {
@@ -456,13 +480,18 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
     kind: 'iran-attack',
     places: [
       { name: 'US base in Jordan (unnamed)', at: [31.827, 36.782], c: 'U' },
-      { name: 'US-Saudi strikes, eastern Iraq', at: [33.3, 45.0], c: 'U' },
+      {
+        name: 'US-Saudi strikes, eastern Iraq',
+        at: [33.3, 45.0],
+        c: 'U',
+        kind: 'us-strike',
+      },
     ],
   },
   {
     date: 'Jul 29, 2026',
     title: 'Iraq PMF confirms 20 killed',
-    kind: 'us-strike',
+    kind: 'loss',
     places: [
       { name: 'PMF bases, Iraq (7 provinces)', at: [33.3, 44.4], c: 'U' },
     ],
@@ -473,7 +502,12 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
     kind: 'iran-attack',
     places: [
       { name: 'Northern Kuwait', at: [29.7, 47.7], c: 'U' },
-      { name: 'Qeshm Island (US strike)', at: [26.8, 55.95], c: 'A' },
+      {
+        name: 'Qeshm Island (US strike)',
+        at: [26.8, 55.95],
+        c: 'A',
+        kind: 'us-strike',
+      },
     ],
   },
   {
@@ -583,7 +617,7 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
   {
     date: 'Sep 1-3, 2026',
     title: 'Iran Health Ministry raises Sep 1 strikes',
-    kind: 'us-strike',
+    kind: 'loss',
     places: [
       { name: 'Sirik county', at: [26.519, 57.105], c: 'A' },
       { name: 'Khuzestan', at: [31.318, 48.671], c: 'U' },
@@ -613,13 +647,13 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
   {
     date: 'Sep 3, 2026',
     title: 'Iran reports running weekly military toll',
-    kind: 'us-strike',
+    kind: 'loss',
     places: [{ name: 'Lavan Island', at: [26.81, 53.35], c: 'A' }],
   },
   {
     date: 'Sep 4, 2026',
     title: 'Israeli strikes kill 3, wound 23',
-    kind: 'us-strike',
+    kind: 'israel-strike',
     places: [
       { name: 'Tyre', at: [33.273, 35.194], c: 'H' },
       { name: 'Nabatieh', at: [33.378, 35.484], c: 'H' },
@@ -645,7 +679,12 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
     places: [
       { name: 'Gulf of Oman', at: [25.0, 58.0], c: 'U' },
       { name: 'Near Kharg Island', at: [29.25, 50.32], c: 'A' },
-      { name: 'Al Azraq base, Jordan', at: [31.827, 36.782], c: 'H' },
+      {
+        name: 'Al Azraq base, Jordan',
+        at: [31.827, 36.782],
+        c: 'H',
+        kind: 'iran-attack',
+      },
     ],
   },
   {
@@ -671,7 +710,7 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
   {
     date: 'Sep 10, 2026',
     title: 'Iranian state media reports unconfirmed',
-    kind: 'us-strike',
+    kind: 'unattributed',
     places: [
       { name: 'Sirik', at: [26.519, 57.105], c: 'A' },
       { name: 'Minab', at: [27.147, 57.08], c: 'H' },
@@ -693,7 +732,7 @@ export const IRAN_WAR_EVENT_PLACES = Object.freeze([
   {
     date: 'Sep 17, 2026',
     title: 'UN experts find possible war crimes',
-    kind: 'us-strike',
+    kind: 'diplomacy',
     places: [{ name: 'Minab (school strike)', at: [27.147, 57.08], c: 'A' }],
   },
   {

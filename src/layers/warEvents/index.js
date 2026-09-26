@@ -22,17 +22,22 @@ const WINDOWS = Object.freeze({
 
 const KIND_COLORS = Object.freeze({
   'us-strike': '#ec1313',
+  'israel-strike': '#b36bff',
   'iran-attack': '#ff7a2f',
   maritime: '#f2b84b',
   loss: '#f1e9e4',
   diplomacy: '#b08a78',
+  unattributed: '#8f8f8f',
 });
 const KIND_LABELS = Object.freeze({
   'us-strike': 'US strike',
-  'iran-attack': 'Iran attack',
+  'israel-strike': 'Israeli strike',
+  // Hezbollah and Houthi attacks are tagged here too.
+  'iran-attack': 'Iran / proxy attack',
   maritime: 'Maritime',
   loss: 'Loss',
   diplomacy: 'Diplomacy',
+  unattributed: 'Unattributed',
 });
 
 function formatEventDate(epochMs) {
@@ -83,7 +88,9 @@ function buildPlacedEvents(rows) {
         title: row.title,
         description: row.description,
         dateText: row.date,
-        kind: entry.kind,
+        // A row can pin both sides' actions (e.g. a US strike and the Iranian
+        // retaliation); a place-level kind overrides the entry's.
+        kind: place.kind || entry.kind,
         place,
       });
     });
