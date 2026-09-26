@@ -223,7 +223,7 @@ export function createHormuzTransitsLayer({ fetchImpl = fetch } = {}) {
           _lastUpdate = Date.now();
           _lastError = null;
           renderChip();
-          return false;
+          return true;
         }
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         _keyRequired = false;
@@ -232,9 +232,9 @@ export function createHormuzTransitsLayer({ fetchImpl = fetch } = {}) {
         _lastError = null;
         if (_summary?.zones) buildZonesFromSummary(_summary.zones);
         renderChip();
-        // Chip text is DOM-only; zone entities only change (and render) via
-        // buildZonesFromSummary above when the zones config itself changes.
-        return false;
+        // `false` means "rejected" to the lifecycle (it rolls the enable back
+        // to OFF), so a successful poll must return true.
+        return true;
       } catch (error) {
         if (controller.signal.aborted || _abort !== controller) return false;
         console.warn('[Data:HormuzTransits] Fetch error:', error);
@@ -263,6 +263,8 @@ export function createHormuzTransitsLayer({ fetchImpl = fetch } = {}) {
     getStats() {
       return {
         count: _summary?.total ?? 0,
+        // A live zero is a real reading; the panel shows "—" for a falsy count.
+        countLabel: _summary ? String(_summary.total ?? 0) : undefined,
         lastUpdate: _lastUpdate,
         error: _lastError,
         keyRequired: _keyRequired,
