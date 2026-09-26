@@ -112,15 +112,14 @@ export class PanelPositionControls {
         // storage unavailable
       }
     }
-    // DISPLAY starts COLLAPSED for a first-time visitor, then respects the
-    // user's persisted choice like every other panel.
+    // DISPLAY starts COLLAPSED on every load (owner ruling 2026-09-26) — an
+    // expanded DISPLAY is no longer remembered across visits.
     //
     // It used to start expanded, to advertise the HUD / DETECT / 3D toggles.
     // That reason expired when those became ON by default: the rail now opens
     // to offer controls for things already happening, while competing with the
-    // first-run mission card for the one first impression there is. A stored
-    // choice still wins in both directions, so anyone who opens it keeps it.
-    if (panelId === 'pp-toggles' && stored === null) collapsed = true;
+    // first-run mission card for the one first impression there is.
+    if (panelId === 'pp-toggles') collapsed = true;
     panelEl.classList.toggle('collapsed', collapsed);
     this._syncPanelCollapseButton(panelEl);
   }

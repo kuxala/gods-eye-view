@@ -25,6 +25,12 @@ const TRACKING_ID_GRAMMAR = /^[0-9a-z~_-]{1,16}$/;
 const MAX_ENABLED_LAYERS_CHARS = 64;
 const MAX_LAYER_OPTIONS_CHARS = 512;
 export const LAYER_STATE_STORAGE_KEY = 'gev:layer-state:v2';
+/** A first visit (no share payload, nothing saved) starts with the war layers. */
+export const FIRST_VISIT_LAYER_IDS = Object.freeze([
+  'iran-war-events',
+  'firms-strike-candidates',
+  'hormuz-transits',
+]);
 export const LAYER_RESTORE_ORIGINS = Object.freeze({
   share: 'share-restore',
   local: 'local-restore',
@@ -773,10 +779,10 @@ export class LayerStateCoordinator {
       } catch {
         /* best effort */
       }
-      if (stored) {
-        selected = stored;
-        this._source = 'local';
-      }
+      selected =
+        stored ||
+        normalizeLayerState({ enabledLayerIds: FIRST_VISIT_LAYER_IDS });
+      this._source = 'local';
     } else {
       // A valid historical camera/style share with no v2 layer payload keeps
       // the exact legacy default-layer behavior. It must not inherit an
