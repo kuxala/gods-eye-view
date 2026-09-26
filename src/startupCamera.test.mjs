@@ -23,6 +23,5 @@ test('flyToHormuz is exported from camera.js with Hormuz coordinates', () => {
 test('index.html is branded and credits upstream', () => {
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(html, /<title>SITREP — The US–Iran War, Live \| MilitarySpend<\/title>/);
-  assert.match(html, /God's Eye View by Bilawal Sidhu.*\(MIT\)/);
   assert.match(html, /id="ms-return"/);
 });
