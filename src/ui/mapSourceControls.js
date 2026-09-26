@@ -61,6 +61,7 @@ export function createMapSourceControls({
     renderMapStackChips(container, controller.getStacks(), {
       activeId: controller.getActiveId(),
       onSelect: (id) => {
+        if (controller.handleUserSelect?.(id)) return;
         void select(id).catch(() => {});
       },
       bind,

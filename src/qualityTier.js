@@ -91,6 +91,7 @@ const TIER_ORDER = ['low', 'medium', 'high'];
 export const QUALITY_STORAGE_KEY = 'gev:quality:v1';
 const AUTO_DROP_SESSION_KEY = 'gev:quality:auto-drop:v1';
 const OVERRIDES = new Set(['auto', 'low', 'medium', 'high']);
+const PHOTOREAL_OPT_IN_KEY = 'gev:photoreal:v1';
 
 /**
  * Pure tier rule (first match wins), then one step down on battery.
@@ -254,6 +255,20 @@ export async function initQualityTier(options) {
   _autoDrop = drop === 'low' || drop === 'medium' ? drop : null;
   publish(null, 'init');
   return getQualityTier();
+}
+
+/**
+ * Google 3D tiles are opt-in (2026-09-26): off by default on every tier, the
+ * heaviest single thing the globe can load. The photoreal map chip sets it.
+ * @returns {boolean}
+ */
+export function isPhotorealOptedIn() {
+  return readStored('localStorage', PHOTOREAL_OPT_IN_KEY) === '1';
+}
+
+/** @param {boolean} optedIn Persisted; never in share links. */
+export function setPhotorealOptIn(optedIn) {
+  writeStored('localStorage', PHOTOREAL_OPT_IN_KEY, optedIn ? '1' : null);
 }
 
 /** Operator choice from DISPLAY ▸ Quality; persisted, never in share links. */

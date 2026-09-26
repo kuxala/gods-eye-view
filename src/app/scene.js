@@ -5,7 +5,12 @@ import {
   createApplicationViewer,
   installTrackpadPinchZoom,
 } from '../app/viewer.js';
-import { getQualityPreset, onQualityTierChange } from '../qualityTier.js';
+import {
+  getQualityPreset,
+  isPhotorealOptedIn,
+  onQualityTierChange,
+  setPhotorealOptIn,
+} from '../qualityTier.js';
 import { registerDataCredits } from '../data/dataCredits.js';
 import { configureCreditKeyboardAccess } from '../creditKeyboard.js';
 import { MapStackController } from '../mapStackController.js';
@@ -61,10 +66,12 @@ export async function createApplicationScene({
   registerDataCredits(viewer, credits);
   configureCreditKeyboardAccess(document);
   const hasPhotorealCredentials = Boolean(googleApiKey || cesiumToken);
-  // Low quality tier: no Google photoreal tileset at all — the keyless
-  // ellipsoid + Esri imagery stack is the whole map.
+  // No Google photoreal tileset unless the operator opted in (map chip) and
+  // the tier allows it — the keyless ellipsoid + Esri imagery is the default.
   const qualityPreset = getQualityPreset();
-  const photorealSkipped = hasPhotorealCredentials && !qualityPreset.photoreal;
+  const photorealSkipped =
+    hasPhotorealCredentials &&
+    !(qualityPreset.photoreal && isPhotorealOptedIn());
   loaderStatus.textContent =
     hasPhotorealCredentials && !photorealSkipped
       ? 'Loading Google 3D Tiles...'
@@ -110,6 +117,12 @@ export async function createApplicationScene({
     ...mapOptions,
     googleTileset: tileset,
     cesiumToken,
+    photorealDeferred: photorealSkipped && qualityPreset.photoreal,
+    onPhotorealChoice: (optedIn) => {
+      setPhotorealOptIn(optedIn);
+      // Loading the tileset cleanly needs a boot; opting out just forgets it.
+      if (optedIn) window.location.reload();
+    },
     initialStack: tileset ? 'photoreal' : 'esri-imagery',
     // Task 5 (height-datum fix): rebroadcast stack changes as a window
     // CustomEvent so data layers (CCTV per-regime ground resolution) can
@@ -147,6 +160,7 @@ export async function createApplicationScene({
       } else if (
         preset.photoreal &&
         photorealSkipped &&
+        isPhotorealOptedIn() &&
         reason === 'override'
       ) {
         // Booted on low without the tileset; loading it cleanly needs a boot.
