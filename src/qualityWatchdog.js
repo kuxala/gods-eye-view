@@ -70,7 +70,7 @@ function showQualityToast(tierLabel) {
   const toast = document.createElement('div');
   toast.id = 'quality-toast';
   toast.setAttribute('role', 'status');
-  toast.textContent = `Switched to ${tierLabel} quality for smoother performance`;
+  toast.textContent = `Switched to ${tierLabel} quality for smoother performance. Change it in DISPLAY ▸ Quality.`;
   const close = document.createElement('button');
   close.type = 'button';
   close.setAttribute('aria-label', 'Dismiss');

@@ -129,7 +129,6 @@ export function createApplicationViewer({ container, creditContainer }) {
     viewer.targetFrameRate = 30;
     applyViewerQuality(viewer, getQualityPreset());
     viewer.scene.globe.show = false;
-    viewer.scene.skyAtmosphere.show = true;
     viewer.scene.skyAtmosphere.atmosphereLightIntensity = 18;
     viewer.scene.skyAtmosphere.saturationShift = -0.12;
     viewer.scene.skyAtmosphere.brightnessShift = -0.08;
@@ -141,14 +140,18 @@ export function createApplicationViewer({ container, creditContainer }) {
 }
 
 /**
- * Apply the viewer-level part of a quality preset (render resolution and the
- * tile budget of an already-loaded photoreal tileset). Safe to call live.
+ * Apply the viewer-level part of a quality preset (render resolution,
+ * atmosphere, imagery-globe detail and the tile budget of an already-loaded
+ * photoreal tileset). Safe to call live.
  * @param {Cesium.Viewer} viewer
  * @param {import('../qualityTier.js').QualityPreset} preset
  * @param {Cesium.Cesium3DTileset|null} [tileset]
  */
 export function applyViewerQuality(viewer, preset, tileset = null) {
   viewer.resolutionScale = preset.resolutionScale;
+  viewer.scene.skyAtmosphere.show = preset.atmosphere;
+  viewer.scene.globe.showGroundAtmosphere = preset.atmosphere;
+  viewer.scene.globe.maximumScreenSpaceError = preset.globeScreenSpaceError;
   if (tileset && preset.tileset) {
     tileset.maximumScreenSpaceError = preset.tileset.maximumScreenSpaceError;
     tileset.cacheBytes = preset.tileset.cacheBytes;

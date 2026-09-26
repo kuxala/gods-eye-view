@@ -1,6 +1,10 @@
 import { createStandaloneApplication } from './standalone/application.js';
 import { describeError } from './standalone/errors.js';
-import { initQualityTier, setQualityOverride } from './qualityTier.js';
+import {
+  getQualityTier,
+  initQualityTier,
+  setQualityOverride,
+} from './qualityTier.js';
 
 let application = null;
 
@@ -35,11 +39,20 @@ function startGlobe() {
   return application.start();
 }
 
+/** `?quality=low` (the site's "Lite mode" link) pins a tier, persisted. */
+function applyQualityParam() {
+  const value = new URLSearchParams(window.location.search).get('quality');
+  if (value) setQualityOverride(value);
+}
+
 // The tier decides whether a Cesium viewer is created at all.
 initQualityTier()
-  .then((tier) =>
-    tier === 'unsupported' ? renderUnsupportedPanel() : startGlobe(),
-  )
+  .then(() => {
+    applyQualityParam();
+    return getQualityTier() === 'unsupported'
+      ? renderUnsupportedPanel()
+      : startGlobe();
+  })
   .catch((error) => {
     console.error("God's Eye View initialization failed:", error);
     const loaderStatus = document.querySelector(

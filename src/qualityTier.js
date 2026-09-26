@@ -28,6 +28,9 @@
  * @property {number} flightDots Flight dot cap (Infinity = FLIGHT_DOT_MAX).
  * @property {'off'|'proximity'|'user'} models Fleet 3D aircraft models.
  * @property {number} movingFrameRate Governor frame rate while moving.
+ * @property {number} dataTickMs Parked data-tick floor (0 = altitude cadence).
+ * @property {boolean} atmosphere Sky + ground atmosphere shading.
+ * @property {number} globeScreenSpaceError Imagery-globe tile detail (Cesium default 2).
  */
 
 const MB = 1024 * 1024;
@@ -37,13 +40,16 @@ export const QUALITY_PRESETS = Object.freeze({
   low: Object.freeze({
     photoreal: false,
     tileset: null,
-    resolutionScale: 0.6,
+    resolutionScale: 0.5,
     postStages: 'off',
-    vesselRows: 800,
+    vesselRows: 400,
     vesselLabels: 0,
-    flightDots: 1000,
+    flightDots: 500,
     models: 'off',
     movingFrameRate: 20,
+    dataTickMs: 2000,
+    atmosphere: false,
+    globeScreenSpaceError: 4,
   }),
   medium: Object.freeze({
     photoreal: true,
@@ -58,6 +64,9 @@ export const QUALITY_PRESETS = Object.freeze({
     flightDots: 2500,
     models: 'proximity',
     movingFrameRate: 30,
+    dataTickMs: 0,
+    atmosphere: true,
+    globeScreenSpaceError: 2,
   }),
   high: Object.freeze({
     photoreal: true,
@@ -72,6 +81,9 @@ export const QUALITY_PRESETS = Object.freeze({
     flightDots: Infinity,
     models: 'user',
     movingFrameRate: 30,
+    dataTickMs: 0,
+    atmosphere: true,
+    globeScreenSpaceError: 2,
   }),
 });
 

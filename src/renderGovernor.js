@@ -39,7 +39,8 @@
  * altitude-based cadence (1 Hz above 2,000 km, 2 Hz above 200 km, 5 Hz
  * above 20 km). The animators' preRender passes dead-reckon from the wall
  * clock, so each ticked frame draws current positions — dots step, never
- * rewind. Camera motion or any non-data hold returns to continuous.
+ * rewind. Camera motion or any non-data hold returns to continuous. The low
+ * quality tier (2026-09-26) ticks at every parked height, at most every 2 s.
  */
 
 import { getQualityPreset, onQualityTierChange } from './qualityTier.js';
@@ -89,9 +90,12 @@ function dataTickIntervalForHeight(heightM) {
 function currentDataTickIntervalMs() {
   if (_cameraMoving || _holds.size === 0) return 0;
   for (const ownerId of _holds) if (!TICKED_DATA_HOLDS.has(ownerId)) return 0;
-  return dataTickIntervalForHeight(
-    _viewer.camera?.positionCartographic?.height,
-  );
+  const heightM = _viewer.camera?.positionCartographic?.height;
+  // Low tier: every parked height ticks, never faster than the tier floor.
+  const { dataTickMs } = getQualityPreset();
+  if (dataTickMs > 0 && Number.isFinite(heightM))
+    return Math.max(dataTickMs, dataTickIntervalForHeight(heightM));
+  return dataTickIntervalForHeight(heightM);
 }
 
 function setDataTickInterval(intervalMs) {
