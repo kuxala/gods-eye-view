@@ -3,7 +3,7 @@
 //
 // Applies the MilitarySpend palette (warm dark backgrounds, red accent, warm
 // HUD text) across the UI stylesheets by mechanically replacing the upstream
-// God's Eye View cyan/dark-blue theme colours. Safe to re-run: once the
+// SITREP cyan/dark-blue theme colours. Safe to re-run: once the
 // upstream colours are gone, the regexes simply find nothing to replace.
 //
 // Semantic status/alert colours (error, warning, danger, etc.) are NOT part

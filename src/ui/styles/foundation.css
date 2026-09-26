@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   GOD'S EYE VIEW — Dark Sci-Fi UI
+   SITREP — Dark Sci-Fi UI
    Apple meets Blade Runner
    ═══════════════════════════════════════════════ */
 
@@ -525,7 +525,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 #title-bar .title-logo {
   position: relative;
   display: block;
-  width: 52px;
+  width: 38px;
   height: auto;
   filter: drop-shadow(0 0 12px rgba(255, 0, 0, 0.5));
 }
@@ -586,7 +586,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 }
 
 .brand-logo {
-  aspect-ratio: 775 / 520;
+  aspect-ratio: 1 / 1;
   overflow: visible;
   pointer-events: none;
 }

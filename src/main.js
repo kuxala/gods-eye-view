@@ -54,7 +54,7 @@ initQualityTier()
       : startGlobe();
   })
   .catch((error) => {
-    console.error("God's Eye View initialization failed:", error);
+    console.error('SITREP initialization failed:', error);
     const loaderStatus = document.querySelector(
       '#loading-screen .loader-status',
     );

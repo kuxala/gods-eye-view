@@ -1,4 +1,4 @@
-# God's Eye View Current State
+# SITREP Current State
 
 AIS encodes speed over ground in 0.1-knot units and course over ground in
 0.1-degree units, reserving the top code of each field for "not available", so
@@ -3553,7 +3553,7 @@ are omitted rather than framing the wrong part of the globe.
 - A successful Pinokio install writes the owner-only `pinokio/.installed`
   marker. The nested launcher menu resolves that marker from its own directory:
   an absent marker exposes Install, a present marker exposes Start, and a
-  running server with a captured ready URL exposes Open God's Eye View.
+  running server with a captured ready URL exposes Open SITREP.
 - Build gate: `npm run build`
 - Network access: local-only by default (`HOST=localhost` in dev-fresh.sh); LAN is an explicit opt-in via `HOST=0.0.0.0` (launcher prints a key-exposure warning + LAN URL; see SECURITY.md)
 - OpenSky default mode: OAuth (`OPENSKY_AUTH_MODE=oauth`; `anon` works without credentials)

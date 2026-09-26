@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>God's Eye View — MilitarySpend</title>
+  <title>SITREP — The US–Iran War, Live | MilitarySpend</title>
   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <link rel="stylesheet" href="/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,7 +13,7 @@
        with the sources: src/materialSymbolsSubset.test.mjs fails when a source
        names a glyph this list is missing, because a missing glyph does not draw
        a box — the ligature never forms and the element renders the literal word. -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&icon_names=adjust,arrow_drop_down,arrow_forward,arrow_left,arrow_right,bolt,chevron_left,chevron_right,close,close_fullscreen,dark_mode,draw,east,flare,flight,layers_clear,light_mode,local_fire_department,my_location,navigation,normal,on,open_in_full,public,radar,radio,right_panel_close,right_panel_open,rocket_launch,skip_next,skip_previous,view_in_ar" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&icon_names=adjust,arrow_drop_down,arrow_forward,arrow_left,arrow_right,bolt,chevron_left,chevron_right,close,close_fullscreen,dark_mode,draw,east,flare,flight,fullscreen,fullscreen_exit,home,layers_clear,light_mode,local_fire_department,my_location,navigation,normal,on,open_in_full,public,radar,radio,right_panel_close,right_panel_open,rocket_launch,skip_next,skip_previous,view_in_ar" rel="stylesheet" />
 </head>
 <body>
   <!-- gev:template scene-chrome -->
@@ -38,14 +38,34 @@
        shown on a direct visit so people find the front door. -->
   <a id="ms-return" href="https://militaryspend.org/globe" hidden
      style="position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:400;padding:6px 12px;background:rgba(0,0,0,.72);color:#fff;font:600 12px/1.2 system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.18)">
-    God's Eye View — open on militaryspend.org/globe
+    MilitarySpend SITREP — open on militaryspend.org/globe
   </a>
   <a id="ms-credit" href="https://github.com/bilawalsidhu/gods-eye-view" target="_blank" rel="noopener"
      style="position:fixed;bottom:8px;left:10px;z-index:400;color:rgba(255,255,255,.55);font:11px/1.2 system-ui,sans-serif;text-decoration:none">
-    God's Eye View by Bilawal Sidhu (MIT)
+    Built on God's Eye View by Bilawal Sidhu (MIT)
   </a>
   <script>
     if (window.top === window.self) document.getElementById('ms-return').hidden = false;
+    // Home + fullscreen live in the top-center action bar (templated after
+    // boot, hence delegation). Fullscreen covers this document only — inside
+    // the militaryspend.org frame that is the globe, not the site page.
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('#ms-home')) {
+        window.top.location.href = 'https://militaryspend.org/';
+      } else if (event.target.closest('#fullscreen-toggle')) {
+        if (document.fullscreenElement) document.exitFullscreen?.();
+        else document.documentElement.requestFullscreen?.().catch(() => {});
+      }
+    });
+    document.addEventListener('fullscreenchange', () => {
+      const button = document.getElementById('fullscreen-toggle');
+      if (!button) return;
+      const on = Boolean(document.fullscreenElement);
+      button.setAttribute('aria-pressed', String(on));
+      button.setAttribute('aria-label', on ? 'Exit fullscreen' : 'Enter fullscreen');
+      button.title = on ? 'Exit fullscreen' : 'Fullscreen';
+      button.querySelector('span').textContent = on ? 'fullscreen_exit' : 'fullscreen';
+    });
   </script>
   <script type="module" src="/src/main.js"></script>
 </body>

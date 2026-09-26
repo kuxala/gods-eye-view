@@ -17,7 +17,7 @@ async function fetchRegionalNews(place) {
     const payload = await fetchRegionalJson(
       `https://api.gdeltproject.org/api/v2/doc/doc?${params}`,
       {
-        headers: { 'User-Agent': 'GodsEyeView/0.1' },
+        headers: { 'User-Agent': 'SITREP/0.1' },
         timeoutMs: 12_000,
       },
     );
